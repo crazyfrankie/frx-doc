@@ -9,7 +9,7 @@ interface SidebarProps {
   currentSection?: string;
 }
 
-export function Sidebar({ currentVersion = 'v1.0', currentSection }: SidebarProps) {
+export function Sidebar({ currentVersion = 'v0.0.2', currentSection }: SidebarProps) {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['getting-started', 'core-modules']));
   const [navigation, setNavigation] = useState<Array<{ id: string; title: string; href: string }>>([]);
   const versions = getVersions();
@@ -21,26 +21,48 @@ export function Sidebar({ currentVersion = 'v1.0', currentSection }: SidebarProp
     }
   }, [currentVersion]);
 
+  // 基于section标题智能分类
+  const categorizeNavigation = (navItems: Array<{ id: string; title: string; href: string }>) => {
+    const gettingStarted = navItems.filter(item => 
+      ['installation', 'quick-start'].includes(item.id.toLowerCase()) ||
+      item.title.toLowerCase().includes('installation') ||
+      item.title.toLowerCase().includes('quick start')
+    );
+    
+    const coreModules = navItems.filter(item => 
+      !gettingStarted.includes(item) && 
+      !['best-practices', 'configuration', 'contributing', 'license'].includes(item.id.toLowerCase()) &&
+      !item.title.toLowerCase().includes('best practices') &&
+      !item.title.toLowerCase().includes('contributing') &&
+      !item.title.toLowerCase().includes('configuration')
+    );
+    
+    const advanced = navItems.filter(item => 
+      ['best-practices', 'configuration', 'contributing'].includes(item.id.toLowerCase()) ||
+      item.title.toLowerCase().includes('best practices') ||
+      item.title.toLowerCase().includes('contributing') ||
+      item.title.toLowerCase().includes('configuration')
+    );
+    
+    return { gettingStarted, coreModules, advanced };
+  };
+
+  const { gettingStarted, coreModules, advanced } = categorizeNavigation(navigation);
+
   const navigationSections = [
     {
       title: 'Getting Started',
-      items: navigation.filter(item => 
-        ['installation', 'quick-start'].includes(item.id)
-      )
+      items: gettingStarted
     },
     {
       title: 'Core Modules',
-      items: navigation.filter(item => 
-        ['http-middleware-httpx', 'error-handling-errorx', 'logging-logs', 'id-generation-idgen', 'context-cache-ctxcache', 'language-extensions-lang'].includes(item.id)
-      )
+      items: coreModules
     },
     {
       title: 'Advanced',
-      items: navigation.filter(item => 
-        ['best-practices', 'configuration-options', 'contributing'].includes(item.id)
-      )
+      items: advanced
     }
-  ];
+  ].filter(section => section.items.length > 0); // 只显示有内容的分类
 
   const toggleSection = (sectionTitle: string) => {
     const newExpanded = new Set(expandedSections);

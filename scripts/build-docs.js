@@ -7,7 +7,6 @@ const matter = require('gray-matter');
 const versionsPath = path.join(__dirname, '../src/config/versions.ts');
 const versionsContent = fs.readFileSync(versionsPath, 'utf-8');
 
-// 简单解析版本配置（提取VERSIONS数组）
 const versionsMatch = versionsContent.match(/export const VERSIONS = \[([\s\S]*?)\];/);
 if (!versionsMatch) {
   throw new Error('Could not parse VERSIONS from versions.ts');
