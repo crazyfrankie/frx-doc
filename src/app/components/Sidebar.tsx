@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { getVersions, getDocData, getVersionLabel } from '../../lib/docs';
+import { getVersions, getDocData } from '../../lib/docs';
 
 interface SidebarProps {
   currentVersion?: string;
