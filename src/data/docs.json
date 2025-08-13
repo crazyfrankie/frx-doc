@@ -19,15 +19,16 @@
       {
         "id": "quick-start",
         "title": "Quick Start",
-        "content": "<hundefined id=\"quick-start\">Quick Start</hundefined><p>Here are some basic usage examples:</p>\n<hundefined id=\"ctxcache\">ctxcache</hundefined><p>It provides ctx caching for HTTP requests, and it is concurrent safe.</p>\n<p>You should use it be your first <code>middleware</code>, such as when you using <code>gin</code>:</p>\n<pre><code class=\"language-go\">func InitRouter() {\n    srv := gin.Default()\n\n    srv.Use(ctxcache.Init())\n    // srv.Use(CORS())\n    // srv.Use(Auth())\n}\n</code></pre>\n<p>And then you can call <code>Store</code> to store KV in ctx, <code>Get</code> returns the value for corresponding key.</p>\n<pre><code class=\"language-go\">// Store\nctxcache.Store(ctx, key, val)\n\n// Get\ndata, ok := ctxcache.Get[keyTyp](ctx, key)\nif !ok {\n\treturn nil\n}\n\nreturn data\n</code></pre>\n",
+        "content": "<hundefined id=\"quick-start\">Quick Start</hundefined><p>Here are some basic usage examples:</p>\n",
         "level": 2,
-        "toc": [
-          {
-            "id": "ctxcache",
-            "title": "ctxcache",
-            "level": 3
-          }
-        ]
+        "toc": []
+      },
+      {
+        "id": "ctxcache",
+        "title": "ctxcache",
+        "content": "<hundefined id=\"ctxcache\">ctxcache</hundefined><p>It provides ctx caching for HTTP requests, and it is concurrent safe.</p>\n<p>You should use it be your first <code>middleware</code>, such as when you using <code>gin</code>:</p>\n<pre><code class=\"language-go\">func InitRouter() {\n    srv := gin.Default()\n\n    srv.Use(ctxcache.Init())\n    // srv.Use(CORS())\n    // srv.Use(Auth())\n}\n</code></pre>\n<p>And then you can call <code>Store</code> to store KV in ctx, <code>Get</code> returns the value for corresponding key.</p>\n<pre><code class=\"language-go\">// Store\nctxcache.Store(ctx, key, val)\n\n// Get\ndata, ok := ctxcache.Get[keyTyp](ctx, key)\nif !ok {\n\treturn nil\n}\n\nreturn data\n</code></pre>\n",
+        "level": 2,
+        "toc": []
       },
       {
         "id": "http-middleware-httpx",
@@ -45,7 +46,7 @@
       {
         "id": "logging-logs",
         "title": "Logging (logs)",
-        "content": "<hundefined id=\"logging-logs\">Logging (logs)</hundefined><p>The logs module provides structured logging capabilities with support for different log levels, formatters, and outputs.</p>\n<hundefined id=\"features\">Features</hundefined><ul>\n<li>Structured logging</li>\n<li>Multiple log levels</li>\n<li>Configurable formatters</li>\n<li>Multiple output destinations</li>\n<li>Performance optimized</li>\n</ul>\n<hundefined id=\"basic-usage\">Basic Usage</hundefined><pre><code class=\"language-go\">package main\n\nimport (\n    &quot;github.com/crazyfrankie/frx/logs&quot;\n)\n\nfunc main() {\n    logs.SetlogLevel(logs.LevelInfo)\n    \n    // call log\n    logs.Info(&quot;Application started&quot;)\n    logs.Error(&quot;Something went wrong&quot;, &quot;error&quot;, err)\n    logs.Debug(&quot;Debug information&quot;, &quot;data&quot;, debugData)\n}\n</code></pre>\n",
+        "content": "<hundefined id=\"logging-logs\">Logging (logs)</hundefined><p>The logs module provides structured logging capabilities with support for different log levels, formatters, and outputs.</p>\n<hundefined id=\"features\">Features</hundefined><ul>\n<li>Structured logging</li>\n<li>Multiple log levels</li>\n<li>Configurable formatters</li>\n<li>Multiple output destinations</li>\n<li>Performance optimized</li>\n</ul>\n<hundefined id=\"basic-usage\">Basic Usage</hundefined><pre><code class=\"language-go\">package main\n\nimport (\n    &quot;github.com/crazyfrankie/frx/logs&quot;\n)\n`\nfunc main() {\n    logs.SetlogLevel(logs.LevelInfo)\n    \n    // call log\n    logs.Info(&quot;Application started&quot;)\n    logs.Error(&quot;Something went wrong&quot;, &quot;error&quot;, err)\n    logs.Debug(&quot;Debug information&quot;, &quot;data&quot;, debugData)\n}\n</code></pre>\n",
         "level": 2,
         "toc": [
           {
@@ -71,6 +72,11 @@
         "id": "quick-start",
         "title": "Quick Start",
         "href": "/docs/v0.0.2/quick-start"
+      },
+      {
+        "id": "ctxcache",
+        "title": "ctxcache",
+        "href": "/docs/v0.0.2/ctxcache"
       },
       {
         "id": "http-middleware-httpx",
