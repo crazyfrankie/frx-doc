@@ -1,0 +1,55 @@
+import { ImageResponse } from "next/og";
+
+// Route segment config
+export const runtime = "edge";
+
+// Image metadata
+export const alt = "frx Logo";
+export const size = {
+  width: 32,
+  height: 32,
+};
+export const contentType = "image/png";
+
+// Image generation
+export default function Icon() {
+  return new ImageResponse(
+    (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          width: "100%",
+          height: "100%",
+          backgroundColor: "white",
+          position: "relative",
+        }}
+      >
+        {/* G letter design inspired by Go language */}
+        <svg
+          width="32"
+          height="32"
+          viewBox="0 0 32 32"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <rect width="32" height="32" fill="white" />
+          <circle cx="16" cy="16" r="12" fill="#00ADD8" />
+          <path
+            d="M10 16C10 12.6863 12.6863 10 16 10C19.3137 10 22 12.6863 22 16C22 19.3137 19.3137 22 16 22C14.5 22 13.1 21.45 12 20.5L10 22.5C11.75 24.25 14.25 25.25 17 25.25C21.5 25.25 25.25 21.5 25.25 17C25.25 12.5 21.5 8.75 17 8.75C12.5 8.75 8.75 12.5 8.75 17C8.75 17.5 8.75 18 8.875 18.5L10 17.375V16Z"
+            fill="white"
+          />
+          <circle cx="16" cy="16" r="4" fill="white" />
+          <path
+            d="M16 14C14.9 14 14 14.9 14 16C14 17.1 14.9 18 16 18C17.1 18 18 17.1 18 16C18 14.9 17.1 14 16 14ZM16 17C15.45 17 15 16.55 15 16C15 15.45 15.45 15 16 15C16.55 15 17 15.45 17 16C17 16.55 16.55 17 16 17Z"
+            fill="#00ADD8"
+          />
+        </svg>
+      </div>
+    ),
+    {
+      ...size,
+    }
+  );
+}
