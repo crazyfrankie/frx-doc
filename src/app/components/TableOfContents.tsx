@@ -74,7 +74,7 @@ export function TableOfContents({ version, sectionId }: TableOfContentsProps) {
   }
 
   return (
-    <div className="sticky top-8">
+    <div className="sticky top-8 max-h-[calc(100vh-4rem)] overflow-y-auto">
       <div className="bg-gray-50 rounded-lg p-4">
         <h3 className="text-sm font-semibold text-gray-700 mb-4">
           On This Page

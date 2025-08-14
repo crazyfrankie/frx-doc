@@ -1,10 +1,24 @@
 import { Suspense } from 'react';
+import { Metadata } from 'next';
 import { SectionRenderer } from '../../../components/SectionRenderer';
 import { Sidebar } from '../../../components/Sidebar';
 import { TableOfContents } from '../../../components/TableOfContents';
+import { getSection } from '../../../../lib/docs';
 
 interface DocsSectionPageProps {
   params: Promise<{ version: string; section: string }>;
+}
+
+export async function generateMetadata({ params }: DocsSectionPageProps): Promise<Metadata> {
+  const { version, section } = await params;
+  const sectionData = getSection(version, section);
+  
+  const title = sectionData ? `${sectionData.title} - frx` : 'frx';
+  
+  return {
+    title,
+    description: "toolkits for go",
+  };
 }
 
 export default async function DocsSectionPage({ params }: DocsSectionPageProps) {
@@ -14,7 +28,7 @@ export default async function DocsSectionPage({ params }: DocsSectionPageProps) 
     <div className="min-h-screen bg-white">
       <div className="flex">
         <Sidebar currentVersion={version} currentSection={section} />
-        <main className="flex-1 px-6 py-8">
+        <main className="flex-1 ml-80 px-6 py-8">
           <div className="max-w-6xl mx-auto flex gap-8">
             <div className="flex-1 max-w-4xl">
               <Suspense fallback={<div className="text-center py-8">Loading...</div>}>

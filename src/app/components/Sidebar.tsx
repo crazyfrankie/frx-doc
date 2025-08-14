@@ -75,7 +75,7 @@ export function Sidebar({ currentVersion = 'v0.0.2', currentSection }: SidebarPr
   };
 
   return (
-    <aside className="w-72 bg-gray-50 min-h-screen border-r border-gray-200">
+    <aside className="w-80 bg-gray-50 min-h-screen border-r border-gray-200 fixed left-0 top-0 overflow-y-auto">
       <div className="p-6">
         <div className="flex justify-between items-center mb-8">
           <Link href="/" className="text-2xl font-bold text-blue-600">

@@ -17,29 +17,210 @@
         ]
       },
       {
-        "id": "ctxcache-http-middleware",
-        "title": "ctxcache（http middleware)",
-        "content": "<hundefined id=\"ctxcache-http-middleware\">ctxcache（http middleware)</hundefined><p>It provides ctx caching for HTTP requests, and it is concurrent safe.</p>\n<p>You should use it be your first <code>middleware</code>, such as when you using <code>gin</code>:</p>\n<pre><code class=\"language-go\">func InitRouter() {\n    srv := gin.Default()\n\n    srv.Use(ctxcache.Init())\n    // srv.Use(CORS())\n    // srv.Use(Auth())\n}\n</code></pre>\n<p>And then you can call <code>Store</code> to store KV in ctx, <code>Get</code> returns the value for corresponding key.</p>\n<pre><code class=\"language-go\">// Store\nctxcache.Store(ctx, key, val)\n\n// Get\ndata, ok := ctxcache.Get[keyTyp](ctx, key)\nif !ok {\n\treturn nil\n}\n\nreturn data\n</code></pre>\n",
-        "level": 2,
-        "toc": []
-      },
-      {
-        "id": "httpx-http-middleware",
-        "title": "httpx（http middleware)",
-        "content": "<hundefined id=\"httpx-http-middleware\">httpx（http middleware)</hundefined><p>The httpx module provides enhanced HTTP client and server functionality, simplifying HTTP request handling and response management.</p>\n<hundefined id=\"http-client\">HTTP Client</hundefined><pre><code class=\"language-go\">package main\n\nimport (\n    &quot;context&quot;\n    &quot;fmt&quot;\n\n    &quot;github.com/crazyfrankie/frx/httpx&quot;\n)\n\nfunc main() {\n    // Create request\n    req := httpx.NewRequest(context.Background(),\n\t\thttp.MethodGet, &quot;https://api.example.com/users&quot;).\n\t\tAddParam(&quot;key1&quot;, &quot;value1&quot;).\n\t\tAddParam(&quot;key2&quot;, &quot;value2&quot;)\n    \n    // GET resp\n    resp, err := req.Do()\n    if err != nil {\n        panic(err)\n    }\n    defer resp.Body.Close()\n    \n    fmt.Printf(&quot;Status: %d\\n&quot;, resp.StatusCode)\n}\n</code></pre>\n",
+        "id": "ctxcache-context-caching-middleware",
+        "title": "ctxcache（context caching middleware）",
+        "content": "<hundefined id=\"ctxcache-context-caching-middleware\">ctxcache（context caching middleware）</hundefined><p>The ctxcache module provides thread-safe context caching for HTTP requests, enabling efficient data sharing within request lifecycles without repeated computations or database queries.</p>\n<hundefined id=\"features\">Features</hundefined><ul>\n<li><strong>Thread-safe caching</strong> using sync.Map for concurrent access</li>\n<li><strong>Generic type support</strong> with compile-time type safety</li>\n<li><strong>Context-based lifecycle</strong> - cache lives within request context</li>\n<li><strong>Key existence checking</strong> with HasKey function</li>\n<li><strong>Zero-value handling</strong> for missing keys</li>\n<li><strong>Any key type support</strong> - strings, structs, or custom types</li>\n</ul>\n<hundefined id=\"basic-usage\">Basic Usage</hundefined><p>Initialize ctxcache as your first middleware (recommended for frameworks like Gin):</p>\n<pre><code class=\"language-go\">func InitRouter() {\n    srv := gin.Default()\n\n    // Initialize context cache first\n    srv.Use(func(c *gin.Context) {\n        ctx := ctxcache.Init(c.Request.Context())\n        c.Request = c.Request.WithContext(ctx)\n        c.Next()\n    })\n    \n    // Other middlewares follow\n    // srv.Use(CORS())\n    // srv.Use(Auth())\n}\n</code></pre>\n<hundefined id=\"storing-and-retrieving-data\">Storing and Retrieving Data</hundefined><pre><code class=\"language-go\">// Store different types of data\nctxcache.Store(ctx, &quot;user_id&quot;, int64(12345))\nctxcache.Store(ctx, &quot;user_name&quot;, &quot;john_doe&quot;)\nctxcache.Store(ctx, &quot;is_admin&quot;, true)\n\n// Store complex structures\ntype User struct {\n    ID   int64  `json:&quot;id&quot;`\n    Name string `json:&quot;name&quot;`\n}\nuser := User{ID: 123, Name: &quot;John&quot;}\nctxcache.Store(ctx, &quot;current_user&quot;, user)\n\n// Retrieve with type safety\nuserID, ok := ctxcache.Get[int64](ctx, &quot;user_id&quot;)\nif !ok {\n    // Handle missing key\n    return errors.New(&quot;user_id not found in cache&quot;)\n}\n\nuserName, ok := ctxcache.Get[string](ctx, &quot;user_name&quot;)\nif ok {\n    fmt.Printf(&quot;User: %s (ID: %d)\\n&quot;, userName, userID)\n}\n\n// Retrieve complex structures\ncachedUser, ok := ctxcache.Get[User](ctx, &quot;current_user&quot;)\nif ok {\n    fmt.Printf(&quot;Current user: %+v\\n&quot;, cachedUser)\n}\n</code></pre>\n<hundefined id=\"advanced-usage\">Advanced Usage</hundefined><pre><code class=\"language-go\">// Using custom key types for better organization\ntype CacheKey struct {\n    Module string\n    ID     int64\n}\n\nuserKey := CacheKey{Module: &quot;user&quot;, ID: 123}\nctxcache.Store(ctx, userKey, userData)\n\n// Check if key exists before retrieval\nif ctxcache.HasKey(ctx, userKey) {\n    user, _ := ctxcache.Get[User](ctx, userKey)\n    // Process user data\n}\n\n// Cache expensive operations\nfunc GetUserPermissions(ctx context.Context, userID int64) ([]string, error) {\n    cacheKey := fmt.Sprintf(&quot;permissions_%d&quot;, userID)\n    \n    // Check cache first\n    if permissions, ok := ctxcache.Get[[]string](ctx, cacheKey); ok {\n        return permissions, nil\n    }\n    \n    // Expensive database query\n    permissions, err := database.GetUserPermissions(userID)\n    if err != nil {\n        return nil, err\n    }\n    \n    // Cache the result\n    ctxcache.Store(ctx, cacheKey, permissions)\n    return permissions, nil\n}\n</code></pre>\n",
         "level": 2,
         "toc": [
           {
-            "id": "http-client",
-            "title": "HTTP Client",
+            "id": "features",
+            "title": "Features",
+            "level": 3
+          },
+          {
+            "id": "basic-usage",
+            "title": "Basic Usage",
+            "level": 3
+          },
+          {
+            "id": "storing-and-retrieving-data",
+            "title": "Storing and Retrieving Data",
+            "level": 3
+          },
+          {
+            "id": "advanced-usage",
+            "title": "Advanced Usage",
             "level": 3
           }
         ]
       },
       {
-        "id": "logs-logging",
-        "title": "logs（logging）",
-        "content": "<hundefined id=\"logs-logging\">logs（logging）</hundefined><p>The logs module provides structured logging capabilities with support for different log levels, formatters, and outputs.</p>\n<hundefined id=\"features\">Features</hundefined><ul>\n<li>Structured logging</li>\n<li>Multiple log levels</li>\n<li>Configurable formatters</li>\n<li>Multiple output destinations</li>\n<li>Performance optimized</li>\n</ul>\n<hundefined id=\"basic-usage\">Basic Usage</hundefined><pre><code class=\"language-go\">package main\n\nimport (\n    &quot;github.com/crazyfrankie/frx/logs&quot;\n)\n`\nfunc main() {\n    logs.SetlogLevel(logs.LevelInfo)\n    \n    // call log\n    logs.Info(&quot;Application started&quot;)\n    logs.Error(&quot;Something went wrong&quot;, &quot;error&quot;, err)\n    logs.Debug(&quot;Debug information&quot;, &quot;data&quot;, debugData)\n}\n</code></pre>\n",
+        "id": "httpx-enhanced-http-client",
+        "title": "httpx（enhanced HTTP client）",
+        "content": "<hundefined id=\"httpx-enhanced-http-client\">httpx（enhanced HTTP client）</hundefined><p>The httpx module provides a fluent, chainable HTTP client with enhanced functionality for building and executing HTTP requests with automatic error handling and JSON support.</p>\n<hundefined id=\"features\">Features</hundefined><ul>\n<li><strong>Fluent API design</strong> with method chaining</li>\n<li><strong>Automatic JSON handling</strong> for request/response bodies</li>\n<li><strong>Custom HTTP client support</strong> for advanced configurations</li>\n<li><strong>Query parameter management</strong> with automatic URL encoding</li>\n<li><strong>Header manipulation</strong> with multiple value support</li>\n<li><strong>Error propagation</strong> throughout the chain</li>\n<li><strong>Context support</strong> for request cancellation and timeouts</li>\n</ul>\n<hundefined id=\"basic-http-operations\">Basic HTTP Operations</hundefined><pre><code class=\"language-go\">package main\n\nimport (\n    &quot;context&quot;\n    &quot;fmt&quot;\n    &quot;net/http&quot;\n    &quot;time&quot;\n\n    &quot;github.com/crazyfrankie/frx/httpx&quot;\n)\n\nfunc main() {\n    ctx := context.Background()\n    \n    // Simple GET request\n    resp := httpx.NewRequest(ctx, http.MethodGet, &quot;https://api.example.com/users&quot;).\n        AddParam(&quot;page&quot;, &quot;1&quot;).\n        AddParam(&quot;limit&quot;, &quot;10&quot;).\n        AddHeader(&quot;Authorization&quot;, &quot;Bearer token123&quot;).\n        Do()\n    \n    if resp.err != nil {\n        panic(resp.err)\n    }\n    defer resp.Body.Close()\n    \n    fmt.Printf(&quot;Status: %d\\n&quot;, resp.StatusCode)\n}\n</code></pre>\n<hundefined id=\"json-request-response-handling\">JSON Request/Response Handling</hundefined><pre><code class=\"language-go\">type CreateUserRequest struct {\n    Name  string `json:&quot;name&quot;`\n    Email string `json:&quot;email&quot;`\n}\n\ntype User struct {\n    ID    int64  `json:&quot;id&quot;`\n    Name  string `json:&quot;name&quot;`\n    Email string `json:&quot;email&quot;`\n}\n\nfunc CreateUser(ctx context.Context, req CreateUserRequest) (*User, error) {\n    var user User\n    \n    resp := httpx.NewRequest(ctx, http.MethodPost, &quot;https://api.example.com/users&quot;).\n        AddHeader(&quot;Content-Type&quot;, &quot;application/json&quot;).\n        AddHeader(&quot;Authorization&quot;, &quot;Bearer token123&quot;).\n        JSONBody(req).  // Automatically marshals to JSON\n        Do()\n    \n    if resp.err != nil {\n        return nil, resp.err\n    }\n    defer resp.Body.Close()\n    \n    // Automatically unmarshal JSON response\n    if err := resp.JSONReceive(&amp;user); err != nil {\n        return nil, err\n    }\n    \n    return &amp;user, nil\n}\n</code></pre>\n<hundefined id=\"custom-http-client-configuration\">Custom HTTP Client Configuration</hundefined><pre><code class=\"language-go\">func main() {\n    // Custom client with timeout and retry logic\n    customClient := &amp;http.Client{\n        Timeout: 30 * time.Second,\n        Transport: &amp;http.Transport{\n            MaxIdleConns:        100,\n            MaxIdleConnsPerHost: 10,\n            IdleConnTimeout:     90 * time.Second,\n        },\n    }\n    \n    resp := httpx.NewRequest(ctx, http.MethodGet, &quot;https://api.example.com/data&quot;).\n        Client(customClient).  // Use custom client\n        AddParam(&quot;format&quot;, &quot;json&quot;).\n        AddHeader(&quot;User-Agent&quot;, &quot;MyApp/1.0&quot;).\n        Do()\n    \n    // Handle response...\n}\n</code></pre>\n<hundefined id=\"error-handling-and-chaining\">Error Handling and Chaining</hundefined><pre><code class=\"language-go\">func FetchUserData(ctx context.Context, userID string) (*User, error) {\n    var user User\n    \n    resp := httpx.NewRequest(ctx, http.MethodGet, &quot;https://api.example.com/users/&quot;+userID).\n        AddHeader(&quot;Authorization&quot;, &quot;Bearer token123&quot;).\n        AddParam(&quot;include&quot;, &quot;profile,settings&quot;).\n        Do()\n    \n    // Error is propagated through the chain\n    if resp.err != nil {\n        return nil, fmt.Errorf(&quot;failed to fetch user: %w&quot;, resp.err)\n    }\n    defer resp.Body.Close()\n    \n    if resp.StatusCode != http.StatusOK {\n        return nil, fmt.Errorf(&quot;API returned status %d&quot;, resp.StatusCode)\n    }\n    \n    if err := resp.JSONReceive(&amp;user); err != nil {\n        return nil, fmt.Errorf(&quot;failed to decode response: %w&quot;, err)\n    }\n    \n    return &amp;user, nil\n}\n</code></pre>\n",
+        "level": 2,
+        "toc": [
+          {
+            "id": "features",
+            "title": "Features",
+            "level": 3
+          },
+          {
+            "id": "basic-http-operations",
+            "title": "Basic HTTP Operations",
+            "level": 3
+          },
+          {
+            "id": "json-request-response-handling",
+            "title": "JSON Request/Response Handling",
+            "level": 3
+          },
+          {
+            "id": "custom-http-client-configuration",
+            "title": "Custom HTTP Client Configuration",
+            "level": 3
+          },
+          {
+            "id": "error-handling-and-chaining",
+            "title": "Error Handling and Chaining",
+            "level": 3
+          }
+        ]
+      },
+      {
+        "id": "logs-structured-logging",
+        "title": "logs（structured logging）",
+        "content": "<hundefined id=\"logs-structured-logging\">logs（structured logging）</hundefined><p>The logs module provides a comprehensive logging system with multiple interfaces, level-based filtering, and flexible output configuration, designed for high-performance applications.</p>\n<hundefined id=\"features\">Features</hundefined><ul>\n<li><strong>Multiple logging interfaces</strong>: Logger, FormatLogger, CtxLogger</li>\n<li><strong>Seven log levels</strong>: Trace, Debug, Info, Notice, Warn, Error, Fatal</li>\n<li><strong>Context-aware logging</strong> with CtxLogger interface</li>\n<li><strong>Configurable output destinations</strong> (stderr, files, custom writers)</li>\n<li><strong>Thread-safe operations</strong> for concurrent applications</li>\n<li><strong>Microsecond precision timestamps</strong></li>\n<li><strong>Short file names</strong> in log output for better readability</li>\n<li><strong>Global and instance-based usage</strong></li>\n</ul>\n<hundefined id=\"log-levels-and-usage\">Log Levels and Usage</hundefined><pre><code class=\"language-go\">package main\n\nimport (\n    &quot;context&quot;\n    &quot;os&quot;\n    \n    &quot;github.com/crazyfrankie/frx/logs&quot;\n)\n\nfunc main() {\n    // Set log level (only logs at this level or higher will be output)\n    logs.SetLevel(logs.LevelInfo)\n    \n    // Different log levels (in order of severity)\n    logs.Trace(&quot;Detailed trace information&quot;)     // Lowest level\n    logs.Debug(&quot;Debug information for developers&quot;)\n    logs.Info(&quot;General information&quot;)             // Default level\n    logs.Notice(&quot;Notable events&quot;)\n    logs.Warn(&quot;Warning messages&quot;)\n    logs.Error(&quot;Error conditions&quot;)\n    logs.Fatal(&quot;Fatal errors - will call os.Exit(1)&quot;)  // Highest level\n}\n</code></pre>\n<hundefined id=\"formatted-logging\">Formatted Logging</hundefined><pre><code class=\"language-go\">func main() {\n    // Formatted logging with printf-style formatting\n    userID := 12345\n    userName := &quot;john_doe&quot;\n    \n    logs.Infof(&quot;User %s (ID: %d) logged in successfully&quot;, userName, userID)\n    logs.Errorf(&quot;Failed to process user %d: %v&quot;, userID, err)\n    logs.Debugf(&quot;Processing request with %d items&quot;, len(items))\n    \n    // All format levels available\n    logs.Tracef(&quot;Trace: %s&quot;, &quot;detailed info&quot;)\n    logs.Debugf(&quot;Debug: %s&quot;, &quot;debug info&quot;)\n    logs.Noticef(&quot;Notice: %s&quot;, &quot;notable event&quot;)\n    logs.Warnf(&quot;Warning: %s&quot;, &quot;warning message&quot;)\n    logs.Fatalf(&quot;Fatal: %s&quot;, &quot;fatal error&quot;)  // Exits program\n}\n</code></pre>\n<hundefined id=\"context-aware-logging\">Context-Aware Logging</hundefined><pre><code class=\"language-go\">func ProcessRequest(ctx context.Context, requestID string) {\n    // Context-aware logging for request tracing\n    logs.CtxInfof(ctx, &quot;Processing request %s&quot;, requestID)\n    \n    // Simulate processing\n    if err := doSomeWork(ctx); err != nil {\n        logs.CtxErrorf(ctx, &quot;Request %s failed: %v&quot;, requestID, err)\n        return\n    }\n    \n    logs.CtxInfof(ctx, &quot;Request %s completed successfully&quot;, requestID)\n}\n\nfunc doSomeWork(ctx context.Context) error {\n    logs.CtxDebugf(ctx, &quot;Starting work processing&quot;)\n    \n    // Simulate work\n    select {\n    case &lt;-time.After(100 * time.Millisecond):\n        logs.CtxDebugf(ctx, &quot;Work completed&quot;)\n        return nil\n    case &lt;-ctx.Done():\n        logs.CtxWarnf(ctx, &quot;Work cancelled: %v&quot;, ctx.Err())\n        return ctx.Err()\n    }\n}\n</code></pre>\n<hundefined id=\"custom-logger-configuration\">Custom Logger Configuration</hundefined><pre><code class=\"language-go\">func main() {\n    // Redirect logs to a file\n    logFile, err := os.OpenFile(&quot;app.log&quot;, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)\n    if err != nil {\n        panic(err)\n    }\n    defer logFile.Close()\n    \n    logs.SetOutput(logFile)\n    logs.SetLevel(logs.LevelDebug)\n    \n    // Use custom logger instance\n    customLogger := logs.DefaultLogger()\n    customLogger.SetLevel(logs.LevelWarn)\n    customLogger.Info(&quot;This won&#39;t be logged due to level filtering&quot;)\n    customLogger.Error(&quot;This will be logged&quot;)\n    \n    // Replace default logger\n    logs.SetLogger(customLogger)\n}\n</code></pre>\n<hundefined id=\"production-logging-patterns\">Production Logging Patterns</hundefined><pre><code class=\"language-go\">func HandleAPIRequest(ctx context.Context, req *APIRequest) (*APIResponse, error) {\n    requestID := req.ID\n    \n    logs.CtxInfof(ctx, &quot;API request started: %s&quot;, requestID)\n    start := time.Now()\n    \n    defer func() {\n        duration := time.Since(start)\n        logs.CtxInfof(ctx, &quot;API request completed: %s (took %v)&quot;, requestID, duration)\n    }()\n    \n    // Validate request\n    if err := validateRequest(req); err != nil {\n        logs.CtxWarnf(ctx, &quot;Invalid request %s: %v&quot;, requestID, err)\n        return nil, err\n    }\n    \n    // Process request\n    resp, err := processRequest(ctx, req)\n    if err != nil {\n        logs.CtxErrorf(ctx, &quot;Failed to process request %s: %v&quot;, requestID, err)\n        return nil, err\n    }\n    \n    logs.CtxDebugf(ctx, &quot;Request %s processed successfully&quot;, requestID)\n    return resp, nil\n}\n</code></pre>\n<hundefined id=\"basic-usage\">Basic Usage</hundefined><pre><code class=\"language-go\">package main\n\nimport (\n    &quot;github.com/crazyfrankie/frx/logs&quot;\n)\n\nfunc main() {\n    logs.SetlogLevel(logs.LevelInfo)\n    \n    // call log\n    logs.Info(&quot;Application started&quot;)\n    logs.Error(&quot;Something went wrong&quot;, &quot;error&quot;, err)\n    logs.Debug(&quot;Debug information&quot;, &quot;data&quot;, debugData)\n}\n</code></pre>\n",
+        "level": 2,
+        "toc": [
+          {
+            "id": "features",
+            "title": "Features",
+            "level": 3
+          },
+          {
+            "id": "log-levels-and-usage",
+            "title": "Log Levels and Usage",
+            "level": 3
+          },
+          {
+            "id": "formatted-logging",
+            "title": "Formatted Logging",
+            "level": 3
+          },
+          {
+            "id": "context-aware-logging",
+            "title": "Context-Aware Logging",
+            "level": 3
+          },
+          {
+            "id": "custom-logger-configuration",
+            "title": "Custom Logger Configuration",
+            "level": 3
+          },
+          {
+            "id": "production-logging-patterns",
+            "title": "Production Logging Patterns",
+            "level": 3
+          },
+          {
+            "id": "basic-usage",
+            "title": "Basic Usage",
+            "level": 3
+          }
+        ]
+      },
+      {
+        "id": "errorx-error-code-management",
+        "title": "errorx（error code management）",
+        "content": "<hundefined id=\"errorx-error-code-management\">errorx（error code management）</hundefined><p>The errorx module provides comprehensive error code management with status codes, stack traces, and configurable error registration for structured error handling.</p>\n<hundefined id=\"features\">Features</hundefined><ul>\n<li>Status code support for errors</li>\n<li>Automatic stack trace generation</li>\n<li>Error registration with templates</li>\n<li>Flexible key-value parameters</li>\n<li>Stability tracking for system errors</li>\n<li>Error wrapping capabilities</li>\n<li><strong>Code generation tool</strong> for automatic error code registration</li>\n</ul>\n<hundefined id=\"code-generation\">Code Generation</hundefined><p>The errorx module includes a powerful code generator (<code>errorx/gen</code>) that automatically generates <code>code.Register</code> calls from YAML configuration files. This approach ensures consistency and reduces manual coding errors.</p>\n<hundefined id=\"setting-up-code-generation\">Setting up Code Generation</hundefined><ol>\n<li><strong>Create metadata configuration</strong> (<code>metadata.yaml</code>):</li>\n</ol>\n<pre><code class=\"language-yaml\">version: &#39;v1&#39;\napp:\n  - name: myapp\n    code: 6  # App identifier (1-9)\n    business:\n      - name: common\n        code: 0\n      - name: user\n        code: 10\n      - name: order\n        code: 20\n</code></pre>\n<ol start=\"2\">\n<li><strong>Create common error codes</strong> (<code>common.yaml</code>):</li>\n</ol>\n<pre><code class=\"language-yaml\">error_code:\n  - name: CommonNoPermission\n    code: 101\n    message: no access permission\n    no_affect_stability: true\n\n  - name: CommonInternalError\n    code: 500\n    message: internal server error\n    no_affect_stability: false\n</code></pre>\n<ol start=\"3\">\n<li><strong>Create business-specific error codes</strong> (<code>user.yaml</code>):</li>\n</ol>\n<pre><code class=\"language-yaml\">error_code:\n  - name: UserNotFound\n    code: 1001\n    message: user not found\n    description: the specified user does not exist\n    no_affect_stability: true\n\n  - name: UserAlreadyExists\n    code: 1002\n    message: user already exists\n    no_affect_stability: true\n</code></pre>\n<hundefined id=\"generate-code\">Generate Code</hundefined><p>Run the generator to create Go code with error registrations:</p>\n<pre><code class=\"language-bash\">go run github.com/crazyfrankie/frx/errorx/gen/code_gen.go \\\n     --biz user \\\n     --app-name myapp \\\n     --app-code 6 \\\n     --import-path &quot;github.com/crazyfrankie/frx/errorx/code&quot; \\\n     --output-dir &quot;./generated/user&quot; \\\n     --script-dir &quot;./config&quot;\n</code></pre>\n<p>This generates Go files with automatic error code registration:</p>\n<pre><code class=\"language-go\">// Generated code\npackage errno\n\nimport &quot;github.com/crazyfrankie/frx/errorx/code&quot;\n\nconst (\n    UserNotFound = int32(610001001)\n    UserAlreadyExists = int32(610001002)\n)\n\nfunc init() {\n    code.Register(UserNotFound, &quot;user not found&quot;, code.WithAffectStability(false))\n    code.Register(UserAlreadyExists, &quot;user already exists&quot;, code.WithAffectStability(false))\n}\n</code></pre>\n<hundefined id=\"manual-registration-alternative\">Manual Registration (Alternative)</hundefined><p>You can also manually register error codes:</p>\n<pre><code class=\"language-go\">package errno\n\nimport &quot;github.com/crazyfrankie/frx/errorx/code&quot;\n\nconst (\n    ErrPermissionDenied = int32(1000001)\n    ErrResourceNotFound = int32(1000002)\n    ErrInvalidParameter = int32(1000003)\n)\n\nfunc init() {\n    code.Register(\n        ErrPermissionDenied,\n        &quot;unauthorized access: {user}&quot;,\n        code.WithAffectStability(false),\n    )\n    \n    code.Register(\n        ErrResourceNotFound,\n        &quot;resource not found: {resource}&quot;,\n        code.WithAffectStability(true),\n    )\n}\n</code></pre>\n<hundefined id=\"using-generated-or-registered-errors\">Using Generated or Registered Errors</hundefined><p>Then use the errors in your application:</p>\n<pre><code class=\"language-go\">package main\n\nimport (\n    &quot;fmt&quot;\n    &quot;github.com/crazyfrankie/frx/errorx&quot;\n    &quot;your-project/types/errno&quot;\n)\n\nfunc main() {\n    // Create new error with parameters\n    err := errorx.New(errno.ErrPermissionDenied, \n        errorx.KV(&quot;user&quot;, &quot;john_doe&quot;),\n        errorx.Extra(&quot;request_id&quot;, &quot;req-123&quot;),\n    )\n    \n    // Wrap existing error\n    originalErr := fmt.Errorf(&quot;database connection failed&quot;)\n    wrappedErr := errorx.WrapByCode(originalErr, errno.ErrResourceNotFound,\n        errorx.KV(&quot;resource&quot;, &quot;user_table&quot;),\n    )\n    \n    // Extract error information\n    if statusErr, ok := err.(errorx.StatusError); ok {\n        fmt.Printf(&quot;Code: %d\\n&quot;, statusErr.Code())\n        fmt.Printf(&quot;Message: %s\\n&quot;, statusErr.Msg())\n        fmt.Printf(&quot;Affects Stability: %v\\n&quot;, statusErr.IsAffectStability())\n    }\n}\n</code></pre>\n",
+        "level": 2,
+        "toc": [
+          {
+            "id": "features",
+            "title": "Features",
+            "level": 3
+          },
+          {
+            "id": "code-generation",
+            "title": "Code Generation",
+            "level": 3
+          },
+          {
+            "id": "setting-up-code-generation",
+            "title": "Setting up Code Generation",
+            "level": 4
+          },
+          {
+            "id": "generate-code",
+            "title": "Generate Code",
+            "level": 4
+          },
+          {
+            "id": "manual-registration-alternative",
+            "title": "Manual Registration (Alternative)",
+            "level": 3
+          },
+          {
+            "id": "using-generated-or-registered-errors",
+            "title": "Using Generated or Registered Errors",
+            "level": 3
+          }
+        ]
+      },
+      {
+        "id": "idgen-distributed-unique-id-generator",
+        "title": "idgen（distributed unique ID generator）",
+        "content": "<hundefined id=\"idgen-distributed-unique-id-generator\">idgen（distributed unique ID generator）</hundefined><p>The idgen module provides distributed unique ID generation using Redis as the coordination backend, suitable for high-concurrency scenarios.</p>\n<hundefined id=\"features\">Features</hundefined><ul>\n<li>Distributed unique ID generation</li>\n<li>Redis-based coordination</li>\n<li>Batch ID generation support</li>\n<li>Time-based ID structure</li>\n<li>Collision avoidance mechanisms</li>\n</ul>\n<hundefined id=\"basic-usage\">Basic Usage</hundefined><pre><code class=\"language-go\">package main\n\nimport (\n    &quot;context&quot;\n    &quot;fmt&quot;\n    \n    &quot;github.com/redis/go-redis/v9&quot;\n    &quot;github.com/crazyfrankie/frx/idgen&quot;\n)\n\nfunc main() {\n    // Initialize Redis client\n    rdb := redis.NewClient(&amp;redis.Options{\n        Addr: &quot;localhost:6379&quot;,\n    })\n    \n    // Create ID generator\n    generator, err := idgen.New(rdb)\n    if err != nil {\n        panic(err)\n    }\n    \n    ctx := context.Background()\n    \n    // Generate single ID\n    id, err := generator.GenID(ctx)\n    if err != nil {\n        panic(err)\n    }\n    fmt.Printf(&quot;Generated ID: %d\\n&quot;, id)\n    \n    // Generate multiple IDs (batch)\n    ids, err := generator.GenMultiIDs(ctx, 10)\n    if err != nil {\n        panic(err)\n    }\n    fmt.Printf(&quot;Generated IDs: %v\\n&quot;, ids)\n}\n</code></pre>\n",
+        "level": 2,
+        "toc": [
+          {
+            "id": "features",
+            "title": "Features",
+            "level": 3
+          },
+          {
+            "id": "basic-usage",
+            "title": "Basic Usage",
+            "level": 3
+          }
+        ]
+      },
+      {
+        "id": "jsoncache-json-caching",
+        "title": "jsoncache（JSON caching）",
+        "content": "<hundefined id=\"jsoncache-json-caching\">jsoncache（JSON caching）</hundefined><p>The jsoncache module provides type-safe JSON caching functionality with Redis backend, supporting generic types for compile-time type safety.</p>\n<hundefined id=\"features\">Features</hundefined><ul>\n<li>Type-safe JSON caching with generics</li>\n<li>Redis backend support</li>\n<li>Automatic JSON marshaling/unmarshaling</li>\n<li>Prefix-based key management</li>\n<li>Error handling with context</li>\n</ul>\n<hundefined id=\"basic-usage\">Basic Usage</hundefined><pre><code class=\"language-go\">package main\n\nimport (\n    &quot;context&quot;\n    &quot;fmt&quot;\n    \n    &quot;github.com/redis/go-redis/v9&quot;\n    &quot;github.com/crazyfrankie/frx/jsoncache&quot;\n)\n\ntype User struct {\n    ID   int64  `json:&quot;id&quot;`\n    Name string `json:&quot;name&quot;`\n    Email string `json:&quot;email&quot;`\n}\n\nfunc main() {\n    // Initialize Redis client\n    rdb := redis.NewClient(&amp;redis.Options{\n        Addr: &quot;localhost:6379&quot;,\n    })\n    \n    // Create JSON cache for User type\n    userCache := jsoncache.New[User](&quot;user:&quot;, rdb)\n    \n    ctx := context.Background()\n    \n    // Save user to cache\n    user := &amp;User{\n        ID:   1,\n        Name: &quot;John Doe&quot;,\n        Email: &quot;john@example.com&quot;,\n    }\n    \n    err := userCache.Save(ctx, &quot;123&quot;, user)\n    if err != nil {\n        panic(err)\n    }\n    \n    // Get user from cache\n    cachedUser, err := userCache.Get(ctx, &quot;123&quot;)\n    if err != nil {\n        panic(err)\n    }\n    \n    fmt.Printf(&quot;Cached user: %+v\\n&quot;, cachedUser)\n    \n    // Delete user from cache\n    err = userCache.Delete(ctx, &quot;123&quot;)\n    if err != nil {\n        panic(err)\n    }\n}\n</code></pre>\n",
+        "level": 2,
+        "toc": [
+          {
+            "id": "features",
+            "title": "Features",
+            "level": 3
+          },
+          {
+            "id": "basic-usage",
+            "title": "Basic Usage",
+            "level": 3
+          }
+        ]
+      },
+      {
+        "id": "lang-go-language-extensions",
+        "title": "lang（Go language extensions）",
+        "content": "<hundefined id=\"lang-go-language-extensions\">lang（Go language extensions）</hundefined><p>The lang module provides utility functions and extensions for common Go programming tasks, organized into several sub-packages.</p>\n<hundefined id=\"sub-packages\">Sub-packages</hundefined><ul>\n<li><strong>conv</strong>: Type conversion utilities</li>\n<li><strong>ptr</strong>: Pointer manipulation helpers</li>\n<li><strong>maps</strong>: Map operation utilities</li>\n<li><strong>sets</strong>: Set data structure operations</li>\n<li><strong>slices</strong>: Slice manipulation functions</li>\n<li><strong>crypto</strong>: Cryptographic utilities</li>\n</ul>\n<hundefined id=\"conv-type-conversion\">conv - Type Conversion</hundefined><pre><code class=\"language-go\">package main\n\nimport (\n    &quot;fmt&quot;\n    &quot;github.com/crazyfrankie/frx/lang/conv&quot;\n)\n\nfunc main() {\n    // String to int64 conversion\n    num, err := conv.StrToInt64(&quot;12345&quot;)\n    if err != nil {\n        panic(err)\n    }\n    fmt.Printf(&quot;Converted number: %d\\n&quot;, num)\n    \n    // String to int64 with default value\n    numWithDefault := conv.StrToInt64D(&quot;invalid&quot;, 0)\n    fmt.Printf(&quot;Number with default: %d\\n&quot;, numWithDefault)\n    \n    // Int64 to string\n    str := conv.Int64ToStr(12345)\n    fmt.Printf(&quot;Converted string: %s\\n&quot;, str)\n    \n    // Debug JSON conversion\n    data := map[string]interface{}{\n        &quot;name&quot;: &quot;John&quot;,\n        &quot;age&quot;:  30,\n    }\n    jsonStr := conv.DebugJsonToStr(data)\n    fmt.Printf(&quot;JSON string: %s\\n&quot;, jsonStr)\n    \n    // Bool to int conversion\n    intVal := conv.BoolToInt(true)  // returns 1\n    fmt.Printf(&quot;Bool to int: %d\\n&quot;, intVal)\n}\n</code></pre>\n<hundefined id=\"ptr-pointer-utilities\">ptr - Pointer Utilities</hundefined><pre><code class=\"language-go\">package main\n\nimport (\n    &quot;fmt&quot;\n    &quot;github.com/crazyfrankie/frx/lang/ptr&quot;\n)\n\nfunc main() {\n    // Create pointer from value\n    value := 42\n    valuePtr := ptr.Of(value)\n    fmt.Printf(&quot;Pointer value: %d\\n&quot;, *valuePtr)\n    \n    // Get value from pointer\n    retrievedValue := ptr.From(valuePtr)\n    fmt.Printf(&quot;Retrieved value: %d\\n&quot;, retrievedValue)\n    \n    // Get value from pointer with default\n    var nilPtr *int\n    defaultValue := ptr.FromOrDefault(nilPtr, 100)\n    fmt.Printf(&quot;Default value: %d\\n&quot;, defaultValue)\n}\n</code></pre>\n",
+        "level": 2,
+        "toc": [
+          {
+            "id": "sub-packages",
+            "title": "Sub-packages",
+            "level": 3
+          },
+          {
+            "id": "conv-type-conversion",
+            "title": "conv - Type Conversion",
+            "level": 3
+          },
+          {
+            "id": "ptr-pointer-utilities",
+            "title": "ptr - Pointer Utilities",
+            "level": 3
+          }
+        ]
+      },
+      {
+        "id": "zapx-enhanced-zap-logging",
+        "title": "zapx（enhanced Zap logging）",
+        "content": "<hundefined id=\"zapx-enhanced-zap-logging\">zapx（enhanced Zap logging）</hundefined><p>The zapx module provides enhanced logging capabilities built on top of Uber&#39;s Zap logger, with additional features like sensitive data masking.</p>\n<hundefined id=\"features\">Features</hundefined><ul>\n<li>Sensitive data masking (e.g., phone numbers)</li>\n<li>Custom core implementation</li>\n<li>Enhanced field processing</li>\n<li>Built on Zap&#39;s high-performance logging</li>\n</ul>\n<hundefined id=\"basic-usage\">Basic Usage</hundefined><pre><code class=\"language-go\">package main\n\nimport (\n    &quot;go.uber.org/zap&quot;\n    &quot;go.uber.org/zap/zapcore&quot;\n    &quot;github.com/crazyfrankie/frx/zapx&quot;\n)\n\nfunc main() {\n    // Create standard Zap core\n    config := zap.NewProductionConfig()\n    core, err := config.Build()\n    if err != nil {\n        panic(err)\n    }\n    \n    // Wrap with custom core for sensitive data handling\n    customCore := zapx.NewCustomCore(core.Core())\n    logger := zap.New(customCore)\n    \n    // Log with sensitive data - phone numbers will be masked\n    logger.Info(&quot;User login&quot;,\n        zap.String(&quot;user&quot;, &quot;john_doe&quot;),\n        zap.String(&quot;phone&quot;, &quot;1234567890&quot;), // Will be masked as &quot;123****890&quot;\n        zap.String(&quot;action&quot;, &quot;login&quot;),\n    )\n    \n    logger.Sync()\n}\n</code></pre>\n<p>The zapx module automatically masks sensitive fields like phone numbers, replacing the middle digits with asterisks for privacy protection while maintaining log readability.</p>\n",
         "level": 2,
         "toc": [
           {
@@ -62,19 +243,44 @@
         "href": "/docs/v0.0.2/installation"
       },
       {
-        "id": "ctxcache-http-middleware",
-        "title": "ctxcache（http middleware)",
-        "href": "/docs/v0.0.2/ctxcache-http-middleware"
+        "id": "ctxcache-context-caching-middleware",
+        "title": "ctxcache（context caching middleware）",
+        "href": "/docs/v0.0.2/ctxcache-context-caching-middleware"
       },
       {
-        "id": "httpx-http-middleware",
-        "title": "httpx（http middleware)",
-        "href": "/docs/v0.0.2/httpx-http-middleware"
+        "id": "httpx-enhanced-http-client",
+        "title": "httpx（enhanced HTTP client）",
+        "href": "/docs/v0.0.2/httpx-enhanced-http-client"
       },
       {
-        "id": "logs-logging",
-        "title": "logs（logging）",
-        "href": "/docs/v0.0.2/logs-logging"
+        "id": "logs-structured-logging",
+        "title": "logs（structured logging）",
+        "href": "/docs/v0.0.2/logs-structured-logging"
+      },
+      {
+        "id": "errorx-error-code-management",
+        "title": "errorx（error code management）",
+        "href": "/docs/v0.0.2/errorx-error-code-management"
+      },
+      {
+        "id": "idgen-distributed-unique-id-generator",
+        "title": "idgen（distributed unique ID generator）",
+        "href": "/docs/v0.0.2/idgen-distributed-unique-id-generator"
+      },
+      {
+        "id": "jsoncache-json-caching",
+        "title": "jsoncache（JSON caching）",
+        "href": "/docs/v0.0.2/jsoncache-json-caching"
+      },
+      {
+        "id": "lang-go-language-extensions",
+        "title": "lang（Go language extensions）",
+        "href": "/docs/v0.0.2/lang-go-language-extensions"
+      },
+      {
+        "id": "zapx-enhanced-zap-logging",
+        "title": "zapx（enhanced Zap logging）",
+        "href": "/docs/v0.0.2/zapx-enhanced-zap-logging"
       }
     ]
   }

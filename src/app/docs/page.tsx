@@ -1,5 +1,11 @@
 import { redirect } from 'next/navigation';
+import { Metadata } from 'next';
 import { getLatestVersion, getDocData } from '../../lib/docs';
+
+export const metadata: Metadata = {
+  title: 'frx',
+  description: 'toolkits for go',
+};
 
 export default function DocsPage() {
   const latestVersion = getLatestVersion();
