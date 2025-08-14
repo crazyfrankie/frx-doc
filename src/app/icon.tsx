@@ -22,7 +22,6 @@ export default function Icon() {
           alignItems: "center",
           width: "100%",
           height: "100%",
-          backgroundColor: "white",
           position: "relative",
         }}
       >
@@ -34,7 +33,6 @@ export default function Icon() {
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <rect width="32" height="32" fill="white" />
           <circle cx="16" cy="16" r="12" fill="#00ADD8" />
           <path
             d="M10 16C10 12.6863 12.6863 10 16 10C19.3137 10 22 12.6863 22 16C22 19.3137 19.3137 22 16 22C14.5 22 13.1 21.45 12 20.5L10 22.5C11.75 24.25 14.25 25.25 17 25.25C21.5 25.25 25.25 21.5 25.25 17C25.25 12.5 21.5 8.75 17 8.75C12.5 8.75 8.75 12.5 8.75 17C8.75 17.5 8.75 18 8.875 18.5L10 17.375V16Z"
