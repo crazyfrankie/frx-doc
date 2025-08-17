@@ -45,82 +45,6 @@
         ]
       },
       {
-        "id": "httpx-enhanced-http-client",
-        "title": "httpx（enhanced HTTP client）",
-        "content": "<hundefined id=\"httpx-enhanced-http-client\">httpx（enhanced HTTP client）</hundefined><p>The httpx module provides a fluent, chainable HTTP client with enhanced functionality for building and executing HTTP requests with automatic error handling and JSON support.</p>\n<hundefined id=\"features\">Features</hundefined><ul>\n<li><strong>Fluent API design</strong> with method chaining</li>\n<li><strong>Automatic JSON handling</strong> for request/response bodies</li>\n<li><strong>Custom HTTP client support</strong> for advanced configurations</li>\n<li><strong>Query parameter management</strong> with automatic URL encoding</li>\n<li><strong>Header manipulation</strong> with multiple value support</li>\n<li><strong>Error propagation</strong> throughout the chain</li>\n<li><strong>Context support</strong> for request cancellation and timeouts</li>\n</ul>\n<hundefined id=\"basic-http-operations\">Basic HTTP Operations</hundefined><pre><code class=\"language-go\">package main\n\nimport (\n    &quot;context&quot;\n    &quot;fmt&quot;\n    &quot;net/http&quot;\n    &quot;time&quot;\n\n    &quot;github.com/crazyfrankie/frx/httpx&quot;\n)\n\nfunc main() {\n    ctx := context.Background()\n    \n    // Simple GET request\n    resp := httpx.NewRequest(ctx, http.MethodGet, &quot;https://api.example.com/users&quot;).\n        AddParam(&quot;page&quot;, &quot;1&quot;).\n        AddParam(&quot;limit&quot;, &quot;10&quot;).\n        AddHeader(&quot;Authorization&quot;, &quot;Bearer token123&quot;).\n        Do()\n    \n    if resp.err != nil {\n        panic(resp.err)\n    }\n    defer resp.Body.Close()\n    \n    fmt.Printf(&quot;Status: %d\\n&quot;, resp.StatusCode)\n}\n</code></pre>\n<hundefined id=\"json-request-response-handling\">JSON Request/Response Handling</hundefined><pre><code class=\"language-go\">type CreateUserRequest struct {\n    Name  string `json:&quot;name&quot;`\n    Email string `json:&quot;email&quot;`\n}\n\ntype User struct {\n    ID    int64  `json:&quot;id&quot;`\n    Name  string `json:&quot;name&quot;`\n    Email string `json:&quot;email&quot;`\n}\n\nfunc CreateUser(ctx context.Context, req CreateUserRequest) (*User, error) {\n    var user User\n    \n    resp := httpx.NewRequest(ctx, http.MethodPost, &quot;https://api.example.com/users&quot;).\n        AddHeader(&quot;Content-Type&quot;, &quot;application/json&quot;).\n        AddHeader(&quot;Authorization&quot;, &quot;Bearer token123&quot;).\n        JSONBody(req).  // Automatically marshals to JSON\n        Do()\n    \n    if resp.err != nil {\n        return nil, resp.err\n    }\n    defer resp.Body.Close()\n    \n    // Automatically unmarshal JSON response\n    if err := resp.JSONReceive(&amp;user); err != nil {\n        return nil, err\n    }\n    \n    return &amp;user, nil\n}\n</code></pre>\n<hundefined id=\"custom-http-client-configuration\">Custom HTTP Client Configuration</hundefined><pre><code class=\"language-go\">func main() {\n    // Custom client with timeout and retry logic\n    customClient := &amp;http.Client{\n        Timeout: 30 * time.Second,\n        Transport: &amp;http.Transport{\n            MaxIdleConns:        100,\n            MaxIdleConnsPerHost: 10,\n            IdleConnTimeout:     90 * time.Second,\n        },\n    }\n    \n    resp := httpx.NewRequest(ctx, http.MethodGet, &quot;https://api.example.com/data&quot;).\n        Client(customClient).  // Use custom client\n        AddParam(&quot;format&quot;, &quot;json&quot;).\n        AddHeader(&quot;User-Agent&quot;, &quot;MyApp/1.0&quot;).\n        Do()\n    \n    // Handle response...\n}\n</code></pre>\n<hundefined id=\"error-handling-and-chaining\">Error Handling and Chaining</hundefined><pre><code class=\"language-go\">func FetchUserData(ctx context.Context, userID string) (*User, error) {\n    var user User\n    \n    resp := httpx.NewRequest(ctx, http.MethodGet, &quot;https://api.example.com/users/&quot;+userID).\n        AddHeader(&quot;Authorization&quot;, &quot;Bearer token123&quot;).\n        AddParam(&quot;include&quot;, &quot;profile,settings&quot;).\n        Do()\n    \n    // Error is propagated through the chain\n    if resp.err != nil {\n        return nil, fmt.Errorf(&quot;failed to fetch user: %w&quot;, resp.err)\n    }\n    defer resp.Body.Close()\n    \n    if resp.StatusCode != http.StatusOK {\n        return nil, fmt.Errorf(&quot;API returned status %d&quot;, resp.StatusCode)\n    }\n    \n    if err := resp.JSONReceive(&amp;user); err != nil {\n        return nil, fmt.Errorf(&quot;failed to decode response: %w&quot;, err)\n    }\n    \n    return &amp;user, nil\n}\n</code></pre>\n",
-        "level": 2,
-        "toc": [
-          {
-            "id": "features",
-            "title": "Features",
-            "level": 3
-          },
-          {
-            "id": "basic-http-operations",
-            "title": "Basic HTTP Operations",
-            "level": 3
-          },
-          {
-            "id": "json-request-response-handling",
-            "title": "JSON Request/Response Handling",
-            "level": 3
-          },
-          {
-            "id": "custom-http-client-configuration",
-            "title": "Custom HTTP Client Configuration",
-            "level": 3
-          },
-          {
-            "id": "error-handling-and-chaining",
-            "title": "Error Handling and Chaining",
-            "level": 3
-          }
-        ]
-      },
-      {
-        "id": "logs-structured-logging",
-        "title": "logs（structured logging）",
-        "content": "<hundefined id=\"logs-structured-logging\">logs（structured logging）</hundefined><p>The logs module provides a comprehensive logging system with multiple interfaces, level-based filtering, and flexible output configuration, designed for high-performance applications.</p>\n<hundefined id=\"features\">Features</hundefined><ul>\n<li><strong>Multiple logging interfaces</strong>: Logger, FormatLogger, CtxLogger</li>\n<li><strong>Seven log levels</strong>: Trace, Debug, Info, Notice, Warn, Error, Fatal</li>\n<li><strong>Context-aware logging</strong> with CtxLogger interface</li>\n<li><strong>Configurable output destinations</strong> (stderr, files, custom writers)</li>\n<li><strong>Thread-safe operations</strong> for concurrent applications</li>\n<li><strong>Microsecond precision timestamps</strong></li>\n<li><strong>Short file names</strong> in log output for better readability</li>\n<li><strong>Global and instance-based usage</strong></li>\n</ul>\n<hundefined id=\"log-levels-and-usage\">Log Levels and Usage</hundefined><pre><code class=\"language-go\">package main\n\nimport (\n    &quot;context&quot;\n    &quot;os&quot;\n    \n    &quot;github.com/crazyfrankie/frx/logs&quot;\n)\n\nfunc main() {\n    // Set log level (only logs at this level or higher will be output)\n    logs.SetLevel(logs.LevelInfo)\n    \n    // Different log levels (in order of severity)\n    logs.Trace(&quot;Detailed trace information&quot;)     // Lowest level\n    logs.Debug(&quot;Debug information for developers&quot;)\n    logs.Info(&quot;General information&quot;)             // Default level\n    logs.Notice(&quot;Notable events&quot;)\n    logs.Warn(&quot;Warning messages&quot;)\n    logs.Error(&quot;Error conditions&quot;)\n    logs.Fatal(&quot;Fatal errors - will call os.Exit(1)&quot;)  // Highest level\n}\n</code></pre>\n<hundefined id=\"formatted-logging\">Formatted Logging</hundefined><pre><code class=\"language-go\">func main() {\n    // Formatted logging with printf-style formatting\n    userID := 12345\n    userName := &quot;john_doe&quot;\n    \n    logs.Infof(&quot;User %s (ID: %d) logged in successfully&quot;, userName, userID)\n    logs.Errorf(&quot;Failed to process user %d: %v&quot;, userID, err)\n    logs.Debugf(&quot;Processing request with %d items&quot;, len(items))\n    \n    // All format levels available\n    logs.Tracef(&quot;Trace: %s&quot;, &quot;detailed info&quot;)\n    logs.Debugf(&quot;Debug: %s&quot;, &quot;debug info&quot;)\n    logs.Noticef(&quot;Notice: %s&quot;, &quot;notable event&quot;)\n    logs.Warnf(&quot;Warning: %s&quot;, &quot;warning message&quot;)\n    logs.Fatalf(&quot;Fatal: %s&quot;, &quot;fatal error&quot;)  // Exits program\n}\n</code></pre>\n<hundefined id=\"context-aware-logging\">Context-Aware Logging</hundefined><pre><code class=\"language-go\">func ProcessRequest(ctx context.Context, requestID string) {\n    // Context-aware logging for request tracing\n    logs.CtxInfof(ctx, &quot;Processing request %s&quot;, requestID)\n    \n    // Simulate processing\n    if err := doSomeWork(ctx); err != nil {\n        logs.CtxErrorf(ctx, &quot;Request %s failed: %v&quot;, requestID, err)\n        return\n    }\n    \n    logs.CtxInfof(ctx, &quot;Request %s completed successfully&quot;, requestID)\n}\n\nfunc doSomeWork(ctx context.Context) error {\n    logs.CtxDebugf(ctx, &quot;Starting work processing&quot;)\n    \n    // Simulate work\n    select {\n    case &lt;-time.After(100 * time.Millisecond):\n        logs.CtxDebugf(ctx, &quot;Work completed&quot;)\n        return nil\n    case &lt;-ctx.Done():\n        logs.CtxWarnf(ctx, &quot;Work cancelled: %v&quot;, ctx.Err())\n        return ctx.Err()\n    }\n}\n</code></pre>\n<hundefined id=\"custom-logger-configuration\">Custom Logger Configuration</hundefined><pre><code class=\"language-go\">func main() {\n    // Redirect logs to a file\n    logFile, err := os.OpenFile(&quot;app.log&quot;, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)\n    if err != nil {\n        panic(err)\n    }\n    defer logFile.Close()\n    \n    logs.SetOutput(logFile)\n    logs.SetLevel(logs.LevelDebug)\n    \n    // Use custom logger instance\n    customLogger := logs.DefaultLogger()\n    customLogger.SetLevel(logs.LevelWarn)\n    customLogger.Info(&quot;This won&#39;t be logged due to level filtering&quot;)\n    customLogger.Error(&quot;This will be logged&quot;)\n    \n    // Replace default logger\n    logs.SetLogger(customLogger)\n}\n</code></pre>\n<hundefined id=\"production-logging-patterns\">Production Logging Patterns</hundefined><pre><code class=\"language-go\">func HandleAPIRequest(ctx context.Context, req *APIRequest) (*APIResponse, error) {\n    requestID := req.ID\n    \n    logs.CtxInfof(ctx, &quot;API request started: %s&quot;, requestID)\n    start := time.Now()\n    \n    defer func() {\n        duration := time.Since(start)\n        logs.CtxInfof(ctx, &quot;API request completed: %s (took %v)&quot;, requestID, duration)\n    }()\n    \n    // Validate request\n    if err := validateRequest(req); err != nil {\n        logs.CtxWarnf(ctx, &quot;Invalid request %s: %v&quot;, requestID, err)\n        return nil, err\n    }\n    \n    // Process request\n    resp, err := processRequest(ctx, req)\n    if err != nil {\n        logs.CtxErrorf(ctx, &quot;Failed to process request %s: %v&quot;, requestID, err)\n        return nil, err\n    }\n    \n    logs.CtxDebugf(ctx, &quot;Request %s processed successfully&quot;, requestID)\n    return resp, nil\n}\n</code></pre>\n<hundefined id=\"basic-usage\">Basic Usage</hundefined><pre><code class=\"language-go\">package main\n\nimport (\n    &quot;github.com/crazyfrankie/frx/logs&quot;\n)\n\nfunc main() {\n    logs.SetlogLevel(logs.LevelInfo)\n    \n    // call log\n    logs.Info(&quot;Application started&quot;)\n    logs.Error(&quot;Something went wrong&quot;, &quot;error&quot;, err)\n    logs.Debug(&quot;Debug information&quot;, &quot;data&quot;, debugData)\n}\n</code></pre>\n",
-        "level": 2,
-        "toc": [
-          {
-            "id": "features",
-            "title": "Features",
-            "level": 3
-          },
-          {
-            "id": "log-levels-and-usage",
-            "title": "Log Levels and Usage",
-            "level": 3
-          },
-          {
-            "id": "formatted-logging",
-            "title": "Formatted Logging",
-            "level": 3
-          },
-          {
-            "id": "context-aware-logging",
-            "title": "Context-Aware Logging",
-            "level": 3
-          },
-          {
-            "id": "custom-logger-configuration",
-            "title": "Custom Logger Configuration",
-            "level": 3
-          },
-          {
-            "id": "production-logging-patterns",
-            "title": "Production Logging Patterns",
-            "level": 3
-          },
-          {
-            "id": "basic-usage",
-            "title": "Basic Usage",
-            "level": 3
-          }
-        ]
-      },
-      {
         "id": "errorx-error-code-management",
         "title": "errorx（error code management）",
         "content": "<hundefined id=\"errorx-error-code-management\">errorx（error code management）</hundefined><p>The errorx module provides comprehensive error code management with status codes, stack traces, and configurable error registration for structured error handling.</p>\n<hundefined id=\"features\">Features</hundefined><ul>\n<li>Status code support for errors</li>\n<li>Automatic stack trace generation</li>\n<li>Error registration with templates</li>\n<li>Flexible key-value parameters</li>\n<li>Stability tracking for system errors</li>\n<li>Error wrapping capabilities</li>\n<li><strong>Code generation tool</strong> for automatic error code registration</li>\n</ul>\n<hundefined id=\"code-generation\">Code Generation</hundefined><p>The errorx module includes a powerful code generator (<code>errorx/gen</code>) that automatically generates <code>code.Register</code> calls from YAML configuration files. This approach ensures consistency and reduces manual coding errors.</p>\n<hundefined id=\"setting-up-code-generation\">Setting up Code Generation</hundefined><ol>\n<li><strong>Create metadata configuration</strong> (<code>metadata.yaml</code>):</li>\n</ol>\n<pre><code class=\"language-yaml\">version: &#39;v1&#39;\n\nerror_code:\n  # Total length of the error code (default: 9)\n  total_length: 6\n  # Length of app code (default: 1)\n  app_length: 1\n  # Length of business code (default: 3)\n  biz_length: 2\n  # Length of sub code (default: 4)\n  sub_length: 3\n\napp:\n  - name: myapp\n    code: 6  # App identifier (1-9)\n    business:\n      - name: common\n        code: 0\n      - name: user\n        code: 10\n      - name: order\n        code: 20\n</code></pre>\n<ol start=\"2\">\n<li><strong>Create common error codes</strong> (<code>common.yaml</code>):</li>\n</ol>\n<pre><code class=\"language-yaml\">error_code:\n  - name: CommonNoPermission\n    code: 101\n    message: no access permission\n    no_affect_stability: true\n\n  - name: CommonInternalError\n    code: 500\n    message: internal server error\n    no_affect_stability: false\n</code></pre>\n<ol start=\"3\">\n<li><strong>Create business-specific error codes</strong> (<code>user.yaml</code>):</li>\n</ol>\n<pre><code class=\"language-yaml\">error_code:\n  - name: UserNotFound\n    code: 1001\n    message: user not found\n    description: the specified user does not exist\n    no_affect_stability: true\n\n  - name: UserAlreadyExists\n    code: 1002\n    message: user already exists\n    no_affect_stability: true\n</code></pre>\n<hundefined id=\"generate-code\">Generate Code</hundefined><p>Run the generator to create Go code with error registrations:</p>\n<pre><code class=\"language-bash\">go run github.com/crazyfrankie/frx/errorx/gen/code_gen.go \\\n     --biz user \\\n     --app-name myapp \\\n     --app-code 6 \\\n     --import-path &quot;github.com/crazyfrankie/frx/errorx/code&quot; \\\n     --output-dir &quot;./generated/user&quot; \\\n     --script-dir &quot;./config&quot;\n</code></pre>\n<p>This generates Go files with automatic error code registration:</p>\n<pre><code class=\"language-go\">// Generated code\npackage errno\n\nimport &quot;github.com/crazyfrankie/frx/errorx/code&quot;\n\nconst (\n    UserNotFound = int32(610001001)\n    UserAlreadyExists = int32(610001002)\n)\n\nfunc init() {\n    code.Register(UserNotFound, &quot;user not found&quot;, code.WithAffectStability(false))\n    code.Register(UserAlreadyExists, &quot;user already exists&quot;, code.WithAffectStability(false))\n}\n</code></pre>\n<hundefined id=\"manual-registration-alternative\">Manual Registration (Alternative)</hundefined><p>You can also manually register error codes:</p>\n<pre><code class=\"language-go\">package errno\n\nimport &quot;github.com/crazyfrankie/frx/errorx/code&quot;\n\nconst (\n    ErrPermissionDenied = int32(1000001)\n    ErrResourceNotFound = int32(1000002)\n    ErrInvalidParameter = int32(1000003)\n)\n\nfunc init() {\n    code.Register(\n        ErrPermissionDenied,\n        &quot;unauthorized access: {user}&quot;,\n        code.WithAffectStability(false),\n    )\n    \n    code.Register(\n        ErrResourceNotFound,\n        &quot;resource not found: {resource}&quot;,\n        code.WithAffectStability(true),\n    )\n}\n</code></pre>\n<hundefined id=\"using-generated-or-registered-errors\">Using Generated or Registered Errors</hundefined><p>Then use the errors in your application:</p>\n<pre><code class=\"language-go\">package main\n\nimport (\n    &quot;fmt&quot;\n\t\n    &quot;github.com/crazyfrankie/frx/errorx&quot;\n    \n\t&quot;your-project/types/errno&quot;\n)\n\nfunc main() {\n    // Create new error with parameters\n    err := errorx.New(errno.ErrPermissionDenied, \n        errorx.KV(&quot;user&quot;, &quot;john_doe&quot;),\n        errorx.Extra(&quot;request_id&quot;, &quot;req-123&quot;),\n    )\n    \n    // Wrap existing error\n    originalErr := fmt.Errorf(&quot;database connection failed&quot;)\n    wrappedErr := errorx.WrapByCode(originalErr, errno.ErrResourceNotFound,\n        errorx.KV(&quot;resource&quot;, &quot;user_table&quot;),\n    )\n    \n    // Extract error information\n    if statusErr, ok := err.(errorx.StatusError); ok {\n        fmt.Printf(&quot;Code: %d\\n&quot;, statusErr.Code())\n        fmt.Printf(&quot;Message: %s\\n&quot;, statusErr.Msg())\n        fmt.Printf(&quot;Affects Stability: %v\\n&quot;, statusErr.IsAffectStability())\n    }\n}\n</code></pre>\n",
@@ -154,6 +78,87 @@
           {
             "id": "using-generated-or-registered-errors",
             "title": "Using Generated or Registered Errors",
+            "level": 3
+          }
+        ]
+      },
+      {
+        "id": "htr-http-to-rpc-converter",
+        "title": "htr（HTTP to RPC converter）",
+        "content": "<hundefined id=\"htr-http-to-rpc-converter\">htr（HTTP to RPC converter）</hundefined><p>The htr module provides a convenient bridge between HTTP requests and gRPC calls, simplifying the process of converting HTTP endpoints to RPC service calls with automatic request parsing, validation, and response handling.</p>\n<hundefined id=\"features\">Features</hundefined><ul>\n<li><strong>Generic type support</strong> for type-safe request/response handling</li>\n<li><strong>Automatic request parsing</strong> from HTTP/Gin contexts to structured types</li>\n<li><strong>Built-in validation</strong> using go-playground/validator</li>\n<li><strong>Error handling integration</strong> with errorx module</li>\n<li><strong>Flexible middleware hooks</strong> with BindAfter and RespAfter options</li>\n<li><strong>Support for both Gin and standard HTTP</strong> handlers</li>\n<li><strong>Structured JSON responses</strong> with consistent error formatting</li>\n</ul>\n<hundefined id=\"basic-usage-with-gin\">Basic Usage with Gin</hundefined><pre><code class=\"language-go\">package main\n\nimport (\n    &quot;context&quot;\n    \n    &quot;github.com/gin-gonic/gin&quot;\n    &quot;google.golang.org/grpc&quot;\n    \n    &quot;github.com/crazyfrankie/frx/htr&quot;\n    &quot;your-project/pb&quot; // Your protobuf generated code\n)\n\ntype CreateUserRequest struct {\n    Name  string `json:&quot;name&quot; binding:&quot;required&quot;`\n    Email string `json:&quot;email&quot; binding:&quot;required,email&quot;`\n    Age   int    `json:&quot;age&quot; binding:&quot;min=1,max=120&quot;`\n}\n\ntype CreateUserResponse struct {\n    ID   int64  `json:&quot;id&quot;`\n    Name string `json:&quot;name&quot;`\n}\n\nfunc CreateUserHandler(c *gin.Context) {\n    // Direct HTTP to RPC conversion\n    htr.Call(c, pb.NewUserServiceClient(grpcConn).CreateUser, grpcClient)\n}\n\nfunc main() {\n    r := gin.Default()\n    \n    // Setup gRPC connection\n    grpcConn, err := grpc.Dial(&quot;localhost:9090&quot;, grpc.WithInsecure())\n    if err != nil {\n        panic(err)\n    }\n    defer grpcConn.Close()\n    \n    grpcClient := pb.NewUserServiceClient(grpcConn)\n    \n    r.POST(&quot;/users&quot;, func(c *gin.Context) {\n        htr.Call[CreateUserRequest, CreateUserResponse](\n            c,\n            grpcClient.CreateUser,\n            grpcClient,\n        )\n    })\n    \n    r.Run(&quot;:8080&quot;)\n}\n</code></pre>\n<hundefined id=\"advanced-usage-with-options\">Advanced Usage with Options</hundefined><pre><code class=\"language-go\">func CreateUserWithValidation(c *gin.Context) {\n    htr.Call[CreateUserRequest, CreateUserResponse](\n        c,\n        grpcClient.CreateUser,\n        grpcClient,\n        &amp;htr.Option[CreateUserRequest, CreateUserResponse]{\n            // Custom validation after request binding\n            BindAfter: func(req *CreateUserRequest) error {\n                if req.Age &lt; 18 {\n                    return errors.New(&quot;user must be at least 18 years old&quot;)\n                }\n                \n                // Additional business logic validation\n                if strings.Contains(req.Email, &quot;blocked-domain.com&quot;) {\n                    return errors.New(&quot;email domain not allowed&quot;)\n                }\n                \n                return nil\n            },\n            \n            // Process response before sending to client\n            RespAfter: func(resp *CreateUserResponse) error {\n                // Log successful user creation\n                logs.Infof(&quot;User created successfully: ID=%d, Name=%s&quot;, \n                    resp.ID, resp.Name)\n                \n                // Could modify response or trigger side effects\n                return nil\n            },\n        },\n    )\n}\n</code></pre>\n<hundefined id=\"standard-http-handler-usage\">Standard HTTP Handler Usage</hundefined><pre><code class=\"language-go\">func CreateUserHTTPHandler(w http.ResponseWriter, r *http.Request) {\n    htr.CallHttp[CreateUserRequest, CreateUserResponse](\n        w, r,\n        grpcClient.CreateUser,\n        grpcClient,\n        &amp;htr.Option[CreateUserRequest, CreateUserResponse]{\n            BindAfter: func(req *CreateUserRequest) error {\n                // Custom validation logic\n                return validateUserRequest(req)\n            },\n        },\n    )\n}\n\nfunc main() {\n    http.HandleFunc(&quot;/users&quot;, CreateUserHTTPHandler)\n    http.ListenAndServe(&quot;:8080&quot;, nil)\n}\n</code></pre>\n<hundefined id=\"error-handling\">Error Handling</hundefined><p>The htr module integrates with the errorx module for consistent error handling:</p>\n<pre><code class=\"language-go\">// Custom error codes (using errorx/gen or manual registration)\nconst (\n    ErrUserAlreadyExists = 1001001\n    ErrInvalidAge       = 1001002\n)\n\nfunc CreateUserWithErrorHandling(c *gin.Context) {\n    htr.Call[CreateUserRequest, CreateUserResponse](\n        c,\n        grpcClient.CreateUser,\n        grpcClient,\n        &amp;htr.Option[CreateUserRequest, CreateUserResponse]{\n            BindAfter: func(req *CreateUserRequest) error {\n                // Check if user already exists\n                if userExists(req.Email) {\n                    return errorx.New(ErrUserAlreadyExists,\n                        errorx.KV(&quot;email&quot;, req.Email))\n                }\n                \n                if req.Age &lt; 18 {\n                    return errorx.New(ErrInvalidAge,\n                        errorx.KV(&quot;provided_age&quot;, req.Age),\n                        errorx.KV(&quot;minimum_age&quot;, 18))\n                }\n                \n                return nil\n            },\n        },\n    )\n}\n</code></pre>\n<hundefined id=\"response-format\">Response Format</hundefined><p>The htr module provides consistent JSON response formatting:</p>\n<p><strong>Success Response:</strong></p>\n<pre><code class=\"language-json\">{\n    &quot;code&quot;: 0,\n    &quot;message&quot;: &quot;&quot;,\n    &quot;data&quot;: {\n        &quot;id&quot;: 12345,\n        &quot;name&quot;: &quot;John Doe&quot;\n    }\n}\n</code></pre>\n<p><strong>Error Response:</strong></p>\n<pre><code class=\"language-json\">{\n    &quot;code&quot;: 1001001,\n    &quot;message&quot;: &quot;user already exists&quot;,\n    &quot;data&quot;: null\n}\n</code></pre>\n<hundefined id=\"multiple-validation-steps\">Multiple Validation Steps</hundefined><pre><code class=\"language-go\">func ComplexUserHandler(c *gin.Context) {\n    htr.Call[CreateUserRequest, CreateUserResponse](\n        c,\n        grpcClient.CreateUser,\n        grpcClient,\n        &amp;htr.Option[CreateUserRequest, CreateUserResponse]{\n            BindAfter: func(req *CreateUserRequest) error {\n                // Step 1: Business logic validation\n                if err := validateBusinessRules(req); err != nil {\n                    return err\n                }\n                \n                // Step 2: External service validation\n                if err := validateWithExternalService(req); err != nil {\n                    return err\n                }\n                \n                // Step 3: Database constraints\n                if err := validateDatabaseConstraints(req); err != nil {\n                    return err\n                }\n                \n                return nil\n            },\n            \n            RespAfter: func(resp *CreateUserResponse) error {\n                // Send welcome email\n                go sendWelcomeEmail(resp.ID)\n                \n                // Update analytics\n                go updateUserCreationMetrics()\n                \n                return nil\n            },\n        },\n    )\n}\n</code></pre>\n<hundefined id=\"integration-with-context-caching\">Integration with Context Caching</hundefined><pre><code class=\"language-go\">func UserHandlerWithCaching(c *gin.Context) {\n    htr.Call[GetUserRequest, GetUserResponse](\n        c,\n        grpcClient.GetUser,\n        grpcClient,\n        &amp;htr.Option[GetUserRequest, GetUserResponse]{\n            BindAfter: func(req *GetUserRequest) error {\n                // Cache user permissions for this request\n                permissions, err := getUserPermissions(req.UserID)\n                if err != nil {\n                    return err\n                }\n                \n                ctxcache.Store(c.Request.Context(), &quot;user_permissions&quot;, permissions)\n                return nil\n            },\n            \n            RespAfter: func(resp *GetUserResponse) error {\n                // Use cached permissions for response filtering\n                if permissions, ok := ctxcache.Get[[]string](c.Request.Context(), &quot;user_permissions&quot;); ok {\n                    resp = filterResponseByPermissions(resp, permissions)\n                }\n                return nil\n            },\n        },\n    )\n}\n</code></pre>\n",
+        "level": 2,
+        "toc": [
+          {
+            "id": "features",
+            "title": "Features",
+            "level": 3
+          },
+          {
+            "id": "basic-usage-with-gin",
+            "title": "Basic Usage with Gin",
+            "level": 3
+          },
+          {
+            "id": "advanced-usage-with-options",
+            "title": "Advanced Usage with Options",
+            "level": 3
+          },
+          {
+            "id": "standard-http-handler-usage",
+            "title": "Standard HTTP Handler Usage",
+            "level": 3
+          },
+          {
+            "id": "error-handling",
+            "title": "Error Handling",
+            "level": 3
+          },
+          {
+            "id": "response-format",
+            "title": "Response Format",
+            "level": 3
+          },
+          {
+            "id": "multiple-validation-steps",
+            "title": "Multiple Validation Steps",
+            "level": 3
+          },
+          {
+            "id": "integration-with-context-caching",
+            "title": "Integration with Context Caching",
+            "level": 3
+          }
+        ]
+      },
+      {
+        "id": "httpx-enhanced-http-client",
+        "title": "httpx（enhanced HTTP client）",
+        "content": "<hundefined id=\"httpx-enhanced-http-client\">httpx（enhanced HTTP client）</hundefined><p>The httpx module provides a fluent, chainable HTTP client with enhanced functionality for building and executing HTTP requests with automatic error handling and JSON support.</p>\n<hundefined id=\"features\">Features</hundefined><ul>\n<li><strong>Fluent API design</strong> with method chaining</li>\n<li><strong>Automatic JSON handling</strong> for request/response bodies</li>\n<li><strong>Custom HTTP client support</strong> for advanced configurations</li>\n<li><strong>Query parameter management</strong> with automatic URL encoding</li>\n<li><strong>Header manipulation</strong> with multiple value support</li>\n<li><strong>Error propagation</strong> throughout the chain</li>\n<li><strong>Context support</strong> for request cancellation and timeouts</li>\n</ul>\n<hundefined id=\"basic-http-operations\">Basic HTTP Operations</hundefined><pre><code class=\"language-go\">package main\n\nimport (\n    &quot;context&quot;\n    &quot;fmt&quot;\n    &quot;net/http&quot;\n    &quot;time&quot;\n\n    &quot;github.com/crazyfrankie/frx/httpx&quot;\n)\n\nfunc main() {\n    ctx := context.Background()\n    \n    // Simple GET request\n    resp := httpx.NewRequest(ctx, http.MethodGet, &quot;https://api.example.com/users&quot;).\n        AddParam(&quot;page&quot;, &quot;1&quot;).\n        AddParam(&quot;limit&quot;, &quot;10&quot;).\n        AddHeader(&quot;Authorization&quot;, &quot;Bearer token123&quot;).\n        Do()\n    \n    if resp.err != nil {\n        panic(resp.err)\n    }\n    defer resp.Body.Close()\n    \n    fmt.Printf(&quot;Status: %d\\n&quot;, resp.StatusCode)\n}\n</code></pre>\n<hundefined id=\"json-request-response-handling\">JSON Request/Response Handling</hundefined><pre><code class=\"language-go\">type CreateUserRequest struct {\n    Name  string `json:&quot;name&quot;`\n    Email string `json:&quot;email&quot;`\n}\n\ntype User struct {\n    ID    int64  `json:&quot;id&quot;`\n    Name  string `json:&quot;name&quot;`\n    Email string `json:&quot;email&quot;`\n}\n\nfunc CreateUser(ctx context.Context, req CreateUserRequest) (*User, error) {\n    var user User\n    \n    resp := httpx.NewRequest(ctx, http.MethodPost, &quot;https://api.example.com/users&quot;).\n        AddHeader(&quot;Content-Type&quot;, &quot;application/json&quot;).\n        AddHeader(&quot;Authorization&quot;, &quot;Bearer token123&quot;).\n        JSONBody(req).  // Automatically marshals to JSON\n        Do()\n    \n    if resp.err != nil {\n        return nil, resp.err\n    }\n    defer resp.Body.Close()\n    \n    // Automatically unmarshal JSON response\n    if err := resp.JSONReceive(&amp;user); err != nil {\n        return nil, err\n    }\n    \n    return &amp;user, nil\n}\n</code></pre>\n<hundefined id=\"custom-http-client-configuration\">Custom HTTP Client Configuration</hundefined><pre><code class=\"language-go\">func main() {\n    // Custom client with timeout and retry logic\n    customClient := &amp;http.Client{\n        Timeout: 30 * time.Second,\n        Transport: &amp;http.Transport{\n            MaxIdleConns:        100,\n            MaxIdleConnsPerHost: 10,\n            IdleConnTimeout:     90 * time.Second,\n        },\n    }\n    \n    resp := httpx.NewRequest(ctx, http.MethodGet, &quot;https://api.example.com/data&quot;).\n        Client(customClient).  // Use custom client\n        AddParam(&quot;format&quot;, &quot;json&quot;).\n        AddHeader(&quot;User-Agent&quot;, &quot;MyApp/1.0&quot;).\n        Do()\n    \n    // Handle response...\n}\n</code></pre>\n<hundefined id=\"error-handling-and-chaining\">Error Handling and Chaining</hundefined><pre><code class=\"language-go\">func FetchUserData(ctx context.Context, userID string) (*User, error) {\n    var user User\n    \n    resp := httpx.NewRequest(ctx, http.MethodGet, &quot;https://api.example.com/users/&quot;+userID).\n        AddHeader(&quot;Authorization&quot;, &quot;Bearer token123&quot;).\n        AddParam(&quot;include&quot;, &quot;profile,settings&quot;).\n        Do()\n    \n    // Error is propagated through the chain\n    if resp.err != nil {\n        return nil, fmt.Errorf(&quot;failed to fetch user: %w&quot;, resp.err)\n    }\n    defer resp.Body.Close()\n    \n    if resp.StatusCode != http.StatusOK {\n        return nil, fmt.Errorf(&quot;API returned status %d&quot;, resp.StatusCode)\n    }\n    \n    if err := resp.JSONReceive(&amp;user); err != nil {\n        return nil, fmt.Errorf(&quot;failed to decode response: %w&quot;, err)\n    }\n    \n    return &amp;user, nil\n}\n</code></pre>\n",
+        "level": 2,
+        "toc": [
+          {
+            "id": "features",
+            "title": "Features",
+            "level": 3
+          },
+          {
+            "id": "basic-http-operations",
+            "title": "Basic HTTP Operations",
+            "level": 3
+          },
+          {
+            "id": "json-request-response-handling",
+            "title": "JSON Request/Response Handling",
+            "level": 3
+          },
+          {
+            "id": "custom-http-client-configuration",
+            "title": "Custom HTTP Client Configuration",
+            "level": 3
+          },
+          {
+            "id": "error-handling-and-chaining",
+            "title": "Error Handling and Chaining",
             "level": 3
           }
         ]
@@ -218,6 +223,49 @@
         ]
       },
       {
+        "id": "logs-structured-logging",
+        "title": "logs（structured logging）",
+        "content": "<hundefined id=\"logs-structured-logging\">logs（structured logging）</hundefined><p>The logs module provides a comprehensive logging system with multiple interfaces, level-based filtering, and flexible output configuration, designed for high-performance applications.</p>\n<hundefined id=\"features\">Features</hundefined><ul>\n<li><strong>Multiple logging interfaces</strong>: Logger, FormatLogger, CtxLogger</li>\n<li><strong>Seven log levels</strong>: Trace, Debug, Info, Notice, Warn, Error, Fatal</li>\n<li><strong>Context-aware logging</strong> with CtxLogger interface</li>\n<li><strong>Configurable output destinations</strong> (stderr, files, custom writers)</li>\n<li><strong>Thread-safe operations</strong> for concurrent applications</li>\n<li><strong>Microsecond precision timestamps</strong></li>\n<li><strong>Short file names</strong> in log output for better readability</li>\n<li><strong>Global and instance-based usage</strong></li>\n</ul>\n<hundefined id=\"log-levels-and-usage\">Log Levels and Usage</hundefined><pre><code class=\"language-go\">package main\n\nimport (\n    &quot;context&quot;\n    &quot;os&quot;\n    \n    &quot;github.com/crazyfrankie/frx/logs&quot;\n)\n\nfunc main() {\n    // Set log level (only logs at this level or higher will be output)\n    logs.SetLevel(logs.LevelInfo)\n    \n    // Different log levels (in order of severity)\n    logs.Trace(&quot;Detailed trace information&quot;)     // Lowest level\n    logs.Debug(&quot;Debug information for developers&quot;)\n    logs.Info(&quot;General information&quot;)             // Default level\n    logs.Notice(&quot;Notable events&quot;)\n    logs.Warn(&quot;Warning messages&quot;)\n    logs.Error(&quot;Error conditions&quot;)\n    logs.Fatal(&quot;Fatal errors - will call os.Exit(1)&quot;)  // Highest level\n}\n</code></pre>\n<hundefined id=\"formatted-logging\">Formatted Logging</hundefined><pre><code class=\"language-go\">func main() {\n    // Formatted logging with printf-style formatting\n    userID := 12345\n    userName := &quot;john_doe&quot;\n    \n    logs.Infof(&quot;User %s (ID: %d) logged in successfully&quot;, userName, userID)\n    logs.Errorf(&quot;Failed to process user %d: %v&quot;, userID, err)\n    logs.Debugf(&quot;Processing request with %d items&quot;, len(items))\n    \n    // All format levels available\n    logs.Tracef(&quot;Trace: %s&quot;, &quot;detailed info&quot;)\n    logs.Debugf(&quot;Debug: %s&quot;, &quot;debug info&quot;)\n    logs.Noticef(&quot;Notice: %s&quot;, &quot;notable event&quot;)\n    logs.Warnf(&quot;Warning: %s&quot;, &quot;warning message&quot;)\n    logs.Fatalf(&quot;Fatal: %s&quot;, &quot;fatal error&quot;)  // Exits program\n}\n</code></pre>\n<hundefined id=\"context-aware-logging\">Context-Aware Logging</hundefined><pre><code class=\"language-go\">func ProcessRequest(ctx context.Context, requestID string) {\n    // Context-aware logging for request tracing\n    logs.CtxInfof(ctx, &quot;Processing request %s&quot;, requestID)\n    \n    // Simulate processing\n    if err := doSomeWork(ctx); err != nil {\n        logs.CtxErrorf(ctx, &quot;Request %s failed: %v&quot;, requestID, err)\n        return\n    }\n    \n    logs.CtxInfof(ctx, &quot;Request %s completed successfully&quot;, requestID)\n}\n\nfunc doSomeWork(ctx context.Context) error {\n    logs.CtxDebugf(ctx, &quot;Starting work processing&quot;)\n    \n    // Simulate work\n    select {\n    case &lt;-time.After(100 * time.Millisecond):\n        logs.CtxDebugf(ctx, &quot;Work completed&quot;)\n        return nil\n    case &lt;-ctx.Done():\n        logs.CtxWarnf(ctx, &quot;Work cancelled: %v&quot;, ctx.Err())\n        return ctx.Err()\n    }\n}\n</code></pre>\n<hundefined id=\"custom-logger-configuration\">Custom Logger Configuration</hundefined><pre><code class=\"language-go\">func main() {\n    // Redirect logs to a file\n    logFile, err := os.OpenFile(&quot;app.log&quot;, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)\n    if err != nil {\n        panic(err)\n    }\n    defer logFile.Close()\n    \n    logs.SetOutput(logFile)\n    logs.SetLevel(logs.LevelDebug)\n    \n    // Use custom logger instance\n    customLogger := logs.DefaultLogger()\n    customLogger.SetLevel(logs.LevelWarn)\n    customLogger.Info(&quot;This won&#39;t be logged due to level filtering&quot;)\n    customLogger.Error(&quot;This will be logged&quot;)\n    \n    // Replace default logger\n    logs.SetLogger(customLogger)\n}\n</code></pre>\n<hundefined id=\"production-logging-patterns\">Production Logging Patterns</hundefined><pre><code class=\"language-go\">func HandleAPIRequest(ctx context.Context, req *APIRequest) (*APIResponse, error) {\n    requestID := req.ID\n    \n    logs.CtxInfof(ctx, &quot;API request started: %s&quot;, requestID)\n    start := time.Now()\n    \n    defer func() {\n        duration := time.Since(start)\n        logs.CtxInfof(ctx, &quot;API request completed: %s (took %v)&quot;, requestID, duration)\n    }()\n    \n    // Validate request\n    if err := validateRequest(req); err != nil {\n        logs.CtxWarnf(ctx, &quot;Invalid request %s: %v&quot;, requestID, err)\n        return nil, err\n    }\n    \n    // Process request\n    resp, err := processRequest(ctx, req)\n    if err != nil {\n        logs.CtxErrorf(ctx, &quot;Failed to process request %s: %v&quot;, requestID, err)\n        return nil, err\n    }\n    \n    logs.CtxDebugf(ctx, &quot;Request %s processed successfully&quot;, requestID)\n    return resp, nil\n}\n</code></pre>\n<hundefined id=\"basic-usage\">Basic Usage</hundefined><pre><code class=\"language-go\">package main\n\nimport (\n    &quot;github.com/crazyfrankie/frx/logs&quot;\n)\n\nfunc main() {\n    logs.SetlogLevel(logs.LevelInfo)\n    \n    // call log\n    logs.Info(&quot;Application started&quot;)\n    logs.Error(&quot;Something went wrong&quot;, &quot;error&quot;, err)\n    logs.Debug(&quot;Debug information&quot;, &quot;data&quot;, debugData)\n}\n</code></pre>\n",
+        "level": 2,
+        "toc": [
+          {
+            "id": "features",
+            "title": "Features",
+            "level": 3
+          },
+          {
+            "id": "log-levels-and-usage",
+            "title": "Log Levels and Usage",
+            "level": 3
+          },
+          {
+            "id": "formatted-logging",
+            "title": "Formatted Logging",
+            "level": 3
+          },
+          {
+            "id": "context-aware-logging",
+            "title": "Context-Aware Logging",
+            "level": 3
+          },
+          {
+            "id": "custom-logger-configuration",
+            "title": "Custom Logger Configuration",
+            "level": 3
+          },
+          {
+            "id": "production-logging-patterns",
+            "title": "Production Logging Patterns",
+            "level": 3
+          },
+          {
+            "id": "basic-usage",
+            "title": "Basic Usage",
+            "level": 3
+          }
+        ]
+      },
+      {
         "id": "zapx-enhanced-zap-logging",
         "title": "zapx（enhanced Zap logging）",
         "content": "<hundefined id=\"zapx-enhanced-zap-logging\">zapx（enhanced Zap logging）</hundefined><p>The zapx module provides enhanced logging capabilities built on top of Uber&#39;s Zap logger, with additional features like sensitive data masking.</p>\n<hundefined id=\"features\">Features</hundefined><ul>\n<li>Sensitive data masking (e.g., phone numbers)</li>\n<li>Custom core implementation</li>\n<li>Enhanced field processing</li>\n<li>Built on Zap&#39;s high-performance logging</li>\n</ul>\n<hundefined id=\"basic-usage\">Basic Usage</hundefined><pre><code class=\"language-go\">package main\n\nimport (\n    &quot;go.uber.org/zap&quot;\n    &quot;go.uber.org/zap/zapcore&quot;\n\t\n    &quot;github.com/crazyfrankie/frx/zapx&quot;\n)\n\nfunc main() {\n    // Create standard Zap core\n    config := zap.NewProductionConfig()\n    core, err := config.Build()\n    if err != nil {\n        panic(err)\n    }\n    \n    // Wrap with custom core for sensitive data handling\n    customCore := zapx.NewCustomCore(core.Core())\n    logger := zap.New(customCore)\n    \n    // Log with sensitive data - phone numbers will be masked\n    logger.Info(&quot;User login&quot;,\n        zap.String(&quot;user&quot;, &quot;john_doe&quot;),\n        zap.String(&quot;phone&quot;, &quot;1234567890&quot;), // Will be masked as &quot;123****890&quot;\n        zap.String(&quot;action&quot;, &quot;login&quot;),\n    )\n    \n    logger.Sync()\n}\n</code></pre>\n<p>The zapx module automatically masks sensitive fields like phone numbers, replacing the middle digits with asterisks for privacy protection while maintaining log readability.</p>\n",
@@ -248,19 +296,19 @@
         "href": "/docs/v0.0.2/ctxcache-context-caching-middleware"
       },
       {
-        "id": "httpx-enhanced-http-client",
-        "title": "httpx（enhanced HTTP client）",
-        "href": "/docs/v0.0.2/httpx-enhanced-http-client"
-      },
-      {
-        "id": "logs-structured-logging",
-        "title": "logs（structured logging）",
-        "href": "/docs/v0.0.2/logs-structured-logging"
-      },
-      {
         "id": "errorx-error-code-management",
         "title": "errorx（error code management）",
         "href": "/docs/v0.0.2/errorx-error-code-management"
+      },
+      {
+        "id": "htr-http-to-rpc-converter",
+        "title": "htr（HTTP to RPC converter）",
+        "href": "/docs/v0.0.2/htr-http-to-rpc-converter"
+      },
+      {
+        "id": "httpx-enhanced-http-client",
+        "title": "httpx（enhanced HTTP client）",
+        "href": "/docs/v0.0.2/httpx-enhanced-http-client"
       },
       {
         "id": "idgen-distributed-unique-id-generator",
@@ -276,6 +324,11 @@
         "id": "lang-go-language-extensions",
         "title": "lang（Go language extensions）",
         "href": "/docs/v0.0.2/lang-go-language-extensions"
+      },
+      {
+        "id": "logs-structured-logging",
+        "title": "logs（structured logging）",
+        "href": "/docs/v0.0.2/logs-structured-logging"
       },
       {
         "id": "zapx-enhanced-zap-logging",
