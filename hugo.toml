@@ -22,7 +22,7 @@ enableEmoji = true
     [markup.goldmark.renderer]
       unsafe = true
   [markup.highlight]
-    style = "github"
+    style = "github-dark"
     lineNos = true
     lineNumbersInTable = false
     tabWidth = 4
@@ -41,6 +41,9 @@ enableEmoji = true
 [params]
   description = "Modern Go libraries for scalable applications"
   author = "crazyfrank"
+  
+  # 自定义CSS
+  custom_css = ["css/custom.css"]
   
   # 网站图标配置
   favicon = "/favicon.ico"

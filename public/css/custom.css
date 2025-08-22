@@ -1,0 +1,68 @@
+/* 修复主页代码块居中问题 */
+
+/* 主页代码块容器 */
+.td-box--primary .highlight {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+/* 代码块本身 */
+.td-box--primary .highlight pre {
+    background-color: #0d1117 !important;
+    color: #e6edf3 !important;
+    border: 1px solid #30363d !important;
+    border-radius: 6px !important;
+    padding: 20px !important;
+    margin: 0 !important;
+    text-align: center !important;
+    width: fit-content !important;
+    max-width: 90% !important;
+}
+
+/* 代码内容 */
+.td-box--primary .highlight code {
+    color: #e6edf3 !important;
+    display: block !important;
+    text-align: center !important;
+}
+
+/* 代码行 - 这是关键的修复 */
+.td-box--primary .highlight code span[style*="display:flex"] {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100% !important;
+}
+
+/* 行号 */
+.td-box--primary .highlight code span span[style*="color:#6e7681"] {
+    color: #6e7681 !important;
+    margin-right: 1em !important;
+    padding: 0 0.4em !important;
+    white-space: pre !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    min-width: 2em !important;
+    text-align: center !important;
+}
+
+/* 代码文本 */
+.td-box--primary .highlight code span span:not([style*="color:#6e7681"]) {
+    color: #e6edf3 !important;
+    white-space: pre !important;
+    text-align: left !important;
+}
+
+/* 确保其他页面的代码块不受影响 */
+.highlight pre:not(.td-box--primary .highlight pre) {
+    background-color: #f8f8f8 !important;
+    color: #333 !important;
+    border: 1px solid #e1e4e8 !important;
+    border-radius: 6px !important;
+    padding: 16px !important;
+}
+
+.highlight code:not(.td-box--primary .highlight code) {
+    color: #333 !important;
+}
