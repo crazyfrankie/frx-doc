@@ -2,32 +2,32 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://frx.crazyfrank.top/docs/ctxcache/</loc>
+    <loc>http://localhost:1313/docs/auth/</loc>
   </url><url>
-    <loc>https://frx.crazyfrank.top/docs/</loc>
+    <loc>http://localhost:1313/docs/ctxcache/</loc>
   </url><url>
-    <loc>https://frx.crazyfrank.top/docs/errorx/</loc>
+    <loc>http://localhost:1313/docs/</loc>
   </url><url>
-    <loc>https://frx.crazyfrank.top/docs/htr/</loc>
+    <loc>http://localhost:1313/docs/errorx/</loc>
   </url><url>
-    <loc>https://frx.crazyfrank.top/docs/httpx/</loc>
+    <loc>http://localhost:1313/docs/htr/</loc>
   </url><url>
-    <loc>https://frx.crazyfrank.top/docs/idgen/</loc>
+    <loc>http://localhost:1313/docs/httpx/</loc>
   </url><url>
-    <loc>https://frx.crazyfrank.top/docs/jsoncache/</loc>
+    <loc>http://localhost:1313/docs/idgen/</loc>
   </url><url>
-    <loc>https://frx.crazyfrank.top/docs/lang/</loc>
+    <loc>http://localhost:1313/docs/jsoncache/</loc>
   </url><url>
-    <loc>https://frx.crazyfrank.top/docs/logs/</loc>
+    <loc>http://localhost:1313/docs/lang/</loc>
   </url><url>
-    <loc>https://frx.crazyfrank.top/docs/zapx/</loc>
+    <loc>http://localhost:1313/docs/logs/</loc>
   </url><url>
-    <loc>https://frx.crazyfrank.top/docs/auth/</loc>
+    <loc>http://localhost:1313/docs/zapx/</loc>
   </url><url>
-    <loc>https://frx.crazyfrank.top/categories/</loc>
+    <loc>http://localhost:1313/categories/</loc>
   </url><url>
-    <loc>https://frx.crazyfrank.top/</loc>
+    <loc>http://localhost:1313/</loc>
   </url><url>
-    <loc>https://frx.crazyfrank.top/tags/</loc>
+    <loc>http://localhost:1313/tags/</loc>
   </url>
 </urlset>

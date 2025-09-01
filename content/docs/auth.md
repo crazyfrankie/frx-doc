@@ -1,7 +1,7 @@
 ---
 title: "auth（JWT authentication）"
 linkTitle: "auth"
-weight: 0
+weight: 5
 description: >
   A comprehensive JWT authentication system supporting both Gin and gRPC contexts with flexible token extraction and validation.
 ---
