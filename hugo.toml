@@ -46,7 +46,7 @@ enableEmoji = true
   custom_css = ["css/custom.css"]
   
   # 网站图标配置
-  favicon = "/favicon.ico"
+  favicon = "/favicon-new.ico"
   logo = "/logo.svg"
   
   # Docsy 主题参数
