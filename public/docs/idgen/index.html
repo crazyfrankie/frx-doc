@@ -1,9 +1,9 @@
 <!doctype html>
 <html itemscope itemtype="http://schema.org/WebPage" lang="en" class="no-js">
-  <head>
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
     <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<meta name="robots" content="index, follow">
+<meta name="robots" content="noindex, nofollow">
 
 
 <link rel="shortcut icon" href="/favicons/favicon.ico" >
@@ -19,7 +19,7 @@
 
 <title>idgen（distributed unique ID generator） | frx</title>
 <meta name="description" content="Distributed unique ID generation using Redis as the coordination backend, suitable for high-concurrency scenarios.">
-<meta property="og:url" content="https://frx.crazyfrank.top/docs/idgen/">
+<meta property="og:url" content="http://localhost:1313/docs/idgen/">
   <meta property="og:site_name" content="frx">
   <meta property="og:title" content="idgen（distributed unique ID generator）">
   <meta property="og:description" content="Distributed unique ID generation using Redis as the coordination backend, suitable for high-concurrency scenarios.">
@@ -33,8 +33,7 @@
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="idgen（distributed unique ID generator）">
   <meta name="twitter:description" content="Distributed unique ID generation using Redis as the coordination backend, suitable for high-concurrency scenarios.">
-<link rel="preload" href="/scss/main.min.4b81c3216eb932c6fab255dad0cfe0aabe89476492b04055884be8313be15923.css" as="style" integrity="sha256-S4HDIW65Msb6slXa0M/gqr6JR2SSsEBViEvoMTvhWSM=" crossorigin="anonymous">
-<link href="/scss/main.min.4b81c3216eb932c6fab255dad0cfe0aabe89476492b04055884be8313be15923.css" rel="stylesheet" integrity="sha256-S4HDIW65Msb6slXa0M/gqr6JR2SSsEBViEvoMTvhWSM=" crossorigin="anonymous">
+<link href="/scss/main.css" rel="stylesheet">
 <script
   src="https://code.jquery.com/jquery-3.7.1.min.js"
   integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
@@ -81,6 +80,8 @@
   <a href="/docs/auth/" title="auth（JWT authentication）" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsauth"><span class="">auth</span></a>
 </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docsctxcache-li">
   <a href="/docs/ctxcache/" title="ctxcache（context caching middleware）" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsctxcache"><span class="">ctxcache</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docscshash-li">
+  <a href="/docs/cshash/" title="cshash（consistent hashing）" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docscshash"><span class="">cshash</span></a>
 </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docserrorx-li">
   <a href="/docs/errorx/" title="errorx（error code management）" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docserrorx"><span class="">errorx</span></a>
 </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docshtr-li">
@@ -154,46 +155,46 @@
 <li>Collision avoidance mechanisms</li>
 </ul>
 <h2 id="basic-usage">Basic Usage</h2>
-<div class="highlight"><pre tabindex="0" style="color:#e6edf3;background-color:#0d1117;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681"> 1</span><span><span style="color:#ff7b72">package</span> main
-</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681"> 2</span><span>
-</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681"> 3</span><span><span style="color:#ff7b72">import</span> (
-</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681"> 4</span><span>    <span style="color:#a5d6ff">&#34;context&#34;</span>
-</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681"> 5</span><span>    <span style="color:#a5d6ff">&#34;fmt&#34;</span>
-</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681"> 6</span><span>    
-</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681"> 7</span><span>    <span style="color:#a5d6ff">&#34;github.com/redis/go-redis/v9&#34;</span>
-</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681"> 8</span><span>	
-</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681"> 9</span><span>    <span style="color:#a5d6ff">&#34;github.com/crazyfrankie/frx/idgen&#34;</span>
-</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">10</span><span>)
-</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">11</span><span>
-</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">12</span><span><span style="color:#ff7b72">func</span> <span style="color:#d2a8ff;font-weight:bold">main</span>() {
-</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">13</span><span>    <span style="color:#8b949e;font-style:italic">// Initialize Redis client</span>
-</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">14</span><span>    rdb <span style="color:#ff7b72;font-weight:bold">:=</span> redis.<span style="color:#d2a8ff;font-weight:bold">NewClient</span>(<span style="color:#ff7b72;font-weight:bold">&amp;</span>redis.Options{
-</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">15</span><span>        Addr: <span style="color:#a5d6ff">&#34;localhost:6379&#34;</span>,
-</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">16</span><span>    })
-</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">17</span><span>    
-</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">18</span><span>    <span style="color:#8b949e;font-style:italic">// Create ID generator</span>
-</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">19</span><span>    generator, err <span style="color:#ff7b72;font-weight:bold">:=</span> idgen.<span style="color:#d2a8ff;font-weight:bold">New</span>(rdb)
-</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">20</span><span>    <span style="color:#ff7b72">if</span> err <span style="color:#ff7b72;font-weight:bold">!=</span> <span style="color:#79c0ff">nil</span> {
-</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">21</span><span>        panic(err)
-</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">22</span><span>    }
-</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">23</span><span>    
-</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">24</span><span>    ctx <span style="color:#ff7b72;font-weight:bold">:=</span> context.<span style="color:#d2a8ff;font-weight:bold">Background</span>()
-</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">25</span><span>    
-</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">26</span><span>    <span style="color:#8b949e;font-style:italic">// Generate single ID</span>
-</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">27</span><span>    id, err <span style="color:#ff7b72;font-weight:bold">:=</span> generator.<span style="color:#d2a8ff;font-weight:bold">GenID</span>(ctx)
-</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">28</span><span>    <span style="color:#ff7b72">if</span> err <span style="color:#ff7b72;font-weight:bold">!=</span> <span style="color:#79c0ff">nil</span> {
-</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">29</span><span>        panic(err)
-</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">30</span><span>    }
-</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">31</span><span>    fmt.<span style="color:#d2a8ff;font-weight:bold">Printf</span>(<span style="color:#a5d6ff">&#34;Generated ID: %d\n&#34;</span>, id)
-</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">32</span><span>    
-</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">33</span><span>    <span style="color:#8b949e;font-style:italic">// Generate multiple IDs (batch)</span>
-</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">34</span><span>    ids, err <span style="color:#ff7b72;font-weight:bold">:=</span> generator.<span style="color:#d2a8ff;font-weight:bold">GenMultiIDs</span>(ctx, <span style="color:#a5d6ff">10</span>)
-</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">35</span><span>    <span style="color:#ff7b72">if</span> err <span style="color:#ff7b72;font-weight:bold">!=</span> <span style="color:#79c0ff">nil</span> {
-</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">36</span><span>        panic(err)
-</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">37</span><span>    }
-</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">38</span><span>    fmt.<span style="color:#d2a8ff;font-weight:bold">Printf</span>(<span style="color:#a5d6ff">&#34;Generated IDs: %v\n&#34;</span>, ids)
-</span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">39</span><span>}
-</span></span></code></pre></div>
+<div class="highlight"><pre tabindex="0" style="color:#e6edf3;background-color:#0d1117;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-go" data-lang="go"><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681"> 1</span><span><span style="color:#ff7b72">package</span><span style="color:#6e7681"> </span>main<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681"> 2</span><span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681"> 3</span><span><span style="color:#6e7681"></span><span style="color:#ff7b72">import</span><span style="color:#6e7681"> </span>(<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681"> 4</span><span><span style="color:#6e7681">    </span><span style="color:#a5d6ff">&#34;context&#34;</span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681"> 5</span><span><span style="color:#6e7681">    </span><span style="color:#a5d6ff">&#34;fmt&#34;</span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681"> 6</span><span><span style="color:#6e7681">    
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681"> 7</span><span><span style="color:#6e7681">    </span><span style="color:#a5d6ff">&#34;github.com/redis/go-redis/v9&#34;</span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681"> 8</span><span><span style="color:#6e7681">	
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681"> 9</span><span><span style="color:#6e7681">    </span><span style="color:#a5d6ff">&#34;github.com/crazyfrankie/frx/idgen&#34;</span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">10</span><span><span style="color:#6e7681"></span>)<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">11</span><span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">12</span><span><span style="color:#6e7681"></span><span style="color:#ff7b72">func</span><span style="color:#6e7681"> </span><span style="color:#d2a8ff;font-weight:bold">main</span>()<span style="color:#6e7681"> </span>{<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">13</span><span><span style="color:#6e7681">    </span><span style="color:#8b949e;font-style:italic">// Initialize Redis client</span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">14</span><span><span style="color:#6e7681">    </span>rdb<span style="color:#6e7681"> </span><span style="color:#ff7b72;font-weight:bold">:=</span><span style="color:#6e7681"> </span>redis.<span style="color:#d2a8ff;font-weight:bold">NewClient</span>(<span style="color:#ff7b72;font-weight:bold">&amp;</span>redis.Options{<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">15</span><span><span style="color:#6e7681">        </span>Addr:<span style="color:#6e7681"> </span><span style="color:#a5d6ff">&#34;localhost:6379&#34;</span>,<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">16</span><span><span style="color:#6e7681">    </span>})<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">17</span><span><span style="color:#6e7681">    
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">18</span><span><span style="color:#6e7681">    </span><span style="color:#8b949e;font-style:italic">// Create ID generator</span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">19</span><span><span style="color:#6e7681">    </span>generator,<span style="color:#6e7681"> </span>err<span style="color:#6e7681"> </span><span style="color:#ff7b72;font-weight:bold">:=</span><span style="color:#6e7681"> </span>idgen.<span style="color:#d2a8ff;font-weight:bold">New</span>(rdb)<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">20</span><span><span style="color:#6e7681">    </span><span style="color:#ff7b72">if</span><span style="color:#6e7681"> </span>err<span style="color:#6e7681"> </span><span style="color:#ff7b72;font-weight:bold">!=</span><span style="color:#6e7681"> </span><span style="color:#79c0ff">nil</span><span style="color:#6e7681"> </span>{<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">21</span><span><span style="color:#6e7681">        </span>panic(err)<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">22</span><span><span style="color:#6e7681">    </span>}<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">23</span><span><span style="color:#6e7681">    
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">24</span><span><span style="color:#6e7681">    </span>ctx<span style="color:#6e7681"> </span><span style="color:#ff7b72;font-weight:bold">:=</span><span style="color:#6e7681"> </span>context.<span style="color:#d2a8ff;font-weight:bold">Background</span>()<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">25</span><span><span style="color:#6e7681">    
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">26</span><span><span style="color:#6e7681">    </span><span style="color:#8b949e;font-style:italic">// Generate single ID</span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">27</span><span><span style="color:#6e7681">    </span>id,<span style="color:#6e7681"> </span>err<span style="color:#6e7681"> </span><span style="color:#ff7b72;font-weight:bold">:=</span><span style="color:#6e7681"> </span>generator.<span style="color:#d2a8ff;font-weight:bold">GenID</span>(ctx)<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">28</span><span><span style="color:#6e7681">    </span><span style="color:#ff7b72">if</span><span style="color:#6e7681"> </span>err<span style="color:#6e7681"> </span><span style="color:#ff7b72;font-weight:bold">!=</span><span style="color:#6e7681"> </span><span style="color:#79c0ff">nil</span><span style="color:#6e7681"> </span>{<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">29</span><span><span style="color:#6e7681">        </span>panic(err)<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">30</span><span><span style="color:#6e7681">    </span>}<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">31</span><span><span style="color:#6e7681">    </span>fmt.<span style="color:#d2a8ff;font-weight:bold">Printf</span>(<span style="color:#a5d6ff">&#34;Generated ID: %d\n&#34;</span>,<span style="color:#6e7681"> </span>id)<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">32</span><span><span style="color:#6e7681">    
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">33</span><span><span style="color:#6e7681">    </span><span style="color:#8b949e;font-style:italic">// Generate multiple IDs (batch)</span><span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">34</span><span><span style="color:#6e7681">    </span>ids,<span style="color:#6e7681"> </span>err<span style="color:#6e7681"> </span><span style="color:#ff7b72;font-weight:bold">:=</span><span style="color:#6e7681"> </span>generator.<span style="color:#d2a8ff;font-weight:bold">GenMultiIDs</span>(ctx,<span style="color:#6e7681"> </span><span style="color:#a5d6ff">10</span>)<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">35</span><span><span style="color:#6e7681">    </span><span style="color:#ff7b72">if</span><span style="color:#6e7681"> </span>err<span style="color:#6e7681"> </span><span style="color:#ff7b72;font-weight:bold">!=</span><span style="color:#6e7681"> </span><span style="color:#79c0ff">nil</span><span style="color:#6e7681"> </span>{<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">36</span><span><span style="color:#6e7681">        </span>panic(err)<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">37</span><span><span style="color:#6e7681">    </span>}<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">38</span><span><span style="color:#6e7681">    </span>fmt.<span style="color:#d2a8ff;font-weight:bold">Printf</span>(<span style="color:#a5d6ff">&#34;Generated IDs: %v\n&#34;</span>,<span style="color:#6e7681"> </span>ids)<span style="color:#6e7681">
+</span></span></span><span style="display:flex;"><span style="white-space:pre;-webkit-user-select:none;user-select:none;margin-right:0.4em;padding:0 0.4em 0 0.4em;color:#6e7681">39</span><span><span style="color:#6e7681"></span>}<span style="color:#6e7681">
+</span></span></span></code></pre></div>
 	
 </div>
 
@@ -225,8 +226,8 @@
 </footer>
 
     </div>
-    <script src="/js/main.min.5d682a860d8f8a3f38fd4fef8c565f13812be422e1dc9389c4a7925d6dac50ff.js" integrity="sha256-XWgqhg2Pij84/U/vjFZfE4Er5CLh3JOJxKeSXW2sUP8=" crossorigin="anonymous"></script>
-<script defer src="/js/click-to-copy.min.73478a7d4807698aed7e355eb23f9890ca18fea3158604c8471746d046702bad.js" integrity="sha256-c0eKfUgHaYrtfjVesj&#43;YkMoY/qMVhgTIRxdG0EZwK60=" crossorigin="anonymous"></script>
+    <script src="/js/main.js"></script>
+<script defer src="/js/click-to-copy.js" crossorigin="anonymous"></script>
 <script src='/js/tabpane-persist.js'></script>
 
   </body>
