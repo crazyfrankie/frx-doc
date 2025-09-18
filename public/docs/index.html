@@ -20,26 +20,26 @@
 
 <title>Documentation | frx</title>
 <meta name="description" content="This is the complete documentation for frx, including detailed usage instructions and examples for all modules.
-frx v0.0.2 frx is a collection of Go libraries designed to provide convenient wrappers for common development tasks. It contains non-business logic code, transport frameworks, and standard libraries for large-scale project development, as well as useful toolkits.
+frx v0.0.5 frx is a collection of Go libraries designed to provide convenient wrappers for common development tasks. It contains non-business logic code, transport frameworks, and standard libraries for large-scale project development, as well as useful toolkits.
 The project is organized into several modules, each focusing on a specific aspect of Go development:">
 <meta property="og:url" content="http://localhost:1313/docs/">
   <meta property="og:site_name" content="frx">
   <meta property="og:title" content="Documentation">
   <meta property="og:description" content="This is the complete documentation for frx, including detailed usage instructions and examples for all modules.
-frx v0.0.2 frx is a collection of Go libraries designed to provide convenient wrappers for common development tasks. It contains non-business logic code, transport frameworks, and standard libraries for large-scale project development, as well as useful toolkits.
+frx v0.0.5 frx is a collection of Go libraries designed to provide convenient wrappers for common development tasks. It contains non-business logic code, transport frameworks, and standard libraries for large-scale project development, as well as useful toolkits.
 The project is organized into several modules, each focusing on a specific aspect of Go development:">
   <meta property="og:locale" content="en_us">
   <meta property="og:type" content="website">
 
   <meta itemprop="name" content="Documentation">
   <meta itemprop="description" content="This is the complete documentation for frx, including detailed usage instructions and examples for all modules.
-frx v0.0.2 frx is a collection of Go libraries designed to provide convenient wrappers for common development tasks. It contains non-business logic code, transport frameworks, and standard libraries for large-scale project development, as well as useful toolkits.
+frx v0.0.5 frx is a collection of Go libraries designed to provide convenient wrappers for common development tasks. It contains non-business logic code, transport frameworks, and standard libraries for large-scale project development, as well as useful toolkits.
 The project is organized into several modules, each focusing on a specific aspect of Go development:">
   <meta itemprop="wordCount" content="131">
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Documentation">
   <meta name="twitter:description" content="This is the complete documentation for frx, including detailed usage instructions and examples for all modules.
-frx v0.0.2 frx is a collection of Go libraries designed to provide convenient wrappers for common development tasks. It contains non-business logic code, transport frameworks, and standard libraries for large-scale project development, as well as useful toolkits.
+frx v0.0.5 frx is a collection of Go libraries designed to provide convenient wrappers for common development tasks. It contains non-business logic code, transport frameworks, and standard libraries for large-scale project development, as well as useful toolkits.
 The project is organized into several modules, each focusing on a specific aspect of Go development:">
 <link href="/scss/main.css" rel="stylesheet">
 <script
@@ -90,8 +90,12 @@ The project is organized into several modules, each focusing on a specific aspec
   <a href="/docs/ctxcache/" title="ctxcache（context caching middleware）" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsctxcache"><span class="">ctxcache</span></a>
 </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docscshash-li">
   <a href="/docs/cshash/" title="cshash（consistent hashing）" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docscshash"><span class="">cshash</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docsconfig-li">
+  <a href="/docs/config/" title="config（configuration management）" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsconfig"><span class="">config</span></a>
 </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docserrorx-li">
   <a href="/docs/errorx/" title="errorx（error code management）" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docserrorx"><span class="">errorx</span></a>
+</li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docsencoding-li">
+  <a href="/docs/encoding/" title="encoding（serialization codec system）" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docsencoding"><span class="">encoding</span></a>
 </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docshtr-li">
   <a href="/docs/htr/" title="htr（HTTP to RPC converter）" class="align-left ps-0 td-sidebar-link td-sidebar-link__page" id="m-docshtr"><span class="">htr</span></a>
 </li><li class="td-sidebar-nav__section-title td-sidebar-nav__section without-child" id="m-docshttpx-li">
@@ -126,7 +130,7 @@ The project is organized into several modules, each focusing on a specific aspec
             <div class="td-toc">
         <nav id="TableOfContents">
   <ul>
-    <li><a href="#frx-v002">frx v0.0.2</a></li>
+    <li><a href="#frx-v005">frx v0.0.5</a></li>
     <li><a href="#installation">Installation</a>
       <ul>
         <li><a href="#install-the-entire-package">Install the entire package</a></li>
@@ -162,7 +166,7 @@ The project is organized into several modules, each focusing on a specific aspec
 
 </div>
 
-<h2 id="frx-v002">frx v0.0.2</h2>
+<h2 id="frx-v005">frx v0.0.5</h2>
 <p><strong>frx</strong> is a collection of Go libraries designed to provide convenient wrappers for common development tasks. It contains non-business logic code, transport frameworks, and standard libraries for large-scale project development, as well as useful toolkits.</p>
 <p>The project is organized into several modules, each focusing on a specific aspect of Go development:</p>
 <ul>
@@ -202,9 +206,21 @@ The project is organized into several modules, each focusing on a specific aspec
             </div>
         <div class="entry">
                 <h5>
+                    <a href="/docs/config/">config（configuration management）</a>
+                </h5>
+                <p>Flexible configuration management system supporting multiple sources (files, environment variables, remote config centers) with unified reading, watching, and parsing interfaces. Protobuf is recommended for defining configuration structures.</p>
+            </div>
+        <div class="entry">
+                <h5>
                     <a href="/docs/errorx/">errorx（error code management）</a>
                 </h5>
                 <p>Comprehensive error code management with status codes, stack traces, and configurable error registration for structured error handling.</p>
+            </div>
+        <div class="entry">
+                <h5>
+                    <a href="/docs/encoding/">encoding（serialization codec system）</a>
+                </h5>
+                <p>Thread-safe serialization codec system supporting multiple formats (JSON, XML, YAML, Protocol Buffers, Form) with automatic registration and content-type handling.</p>
             </div>
         <div class="entry">
                 <h5>

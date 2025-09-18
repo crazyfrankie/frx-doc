@@ -8,7 +8,7 @@ weight: 20
 This is the complete documentation for frx, including detailed usage instructions and examples for all modules.
 {{% /pageinfo %}}
 
-## frx v0.0.2
+## frx v0.0.5
 
 **frx** is a collection of Go libraries designed to provide convenient wrappers for common development tasks. It contains non-business logic code, transport frameworks, and standard libraries for large-scale project development, as well as useful toolkits.
 
